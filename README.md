@@ -8,7 +8,7 @@ perform semantic code search on java byte code
 
 ### quick start
 
-- set PYTHONPATH  (adjust for local path to ktjbcmlscs):
+- set PYTHONPATH  (adjust for local path to kt-semantic-code-search):
   ```
   export PYTHONPATH=$HOME/kt-semantic-code-search
   ```
