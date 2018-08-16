@@ -10,13 +10,13 @@ perform semantic code search on java byte code
 
 - set PYTHONPATH  (adjust for local path to ktjbcmlscs):
   ```
-  export PYTHONPATH=$HOME/ktjbcmlscs
+  export PYTHONPATH=$HOME/kt-semantic-code-search
   ```
 
 - edit jbcmlscs/util/Config.py (if necessary):
   set platform to mac or linux as appropriate
 
-- generate features (invoke from jbcmlscs/bin directory):
+- generate features (invoke from jbcmlscs/cmdline directory):
   ```
   python chj_generate_features.py {path to directory with jarfiles} {path
   to save features} {path to save indexed features}
