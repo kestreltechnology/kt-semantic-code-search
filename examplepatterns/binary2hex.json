@@ -1,0 +1,37 @@
+{
+   "branch-conditions-vmcfsi": {
+      "1": 1, 
+      "arraylength(b)": 1, 
+      "b": 2, 
+      "b.length()": 1, 
+      "b.length()!=1": 1, 
+      "b.length()==1": 1, 
+      "i": 2, 
+      "i<0": 1, 
+      "i<arraylength(b)": 1, 
+      "i>=0": 1, 
+      "i>=arraylength(b)": 1
+   }, 
+   "method-assignments-vmcfsi": {
+      "0": 1, 
+      "Integer.m(i)": 1, 
+      "Integer.m(i).m()": 1, 
+      "b": 1, 
+      "b:=Integer.m(i).m()": 1, 
+      "b:=new C": 1, 
+      "b[i]": 1, 
+      "i": 2, 
+      "i += 256": 1, 
+      "i++": 1, 
+      "i:=0": 1, 
+      "i:=b[i]": 1, 
+      "new C": 1
+   }, 
+   "signatures": {
+      "([B)Ljava/lang/String;": 1
+   }, 
+   "sizes": {
+      "loops": 1, 
+      "max-depth": 1
+   }
+}

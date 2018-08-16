@@ -1,0 +1,5 @@
+{
+    "libcalls": {
+	"java.lang.StringBuilder.replace": 1
+    }
+}

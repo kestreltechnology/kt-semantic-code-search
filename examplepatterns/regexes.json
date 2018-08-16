@@ -1,0 +1,11 @@
+{
+    "libcalls": {
+	"java.util.regex.Pattern.compile": 1,
+	"java.util.regex.Pattern.matcher": 1,
+	"java.util.regex.Matcher.find": 1,
+	"java.util.regex.Matcher.start": 1,
+	"java.util.regex.Matcher.end": 1,
+	"java.util.regex.Matcher.group":  1,
+	"java.util.regex.Matcher.matches": 1
+    }
+}

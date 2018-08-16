@@ -1,0 +1,8 @@
+{
+   "method-assignments-vmcfsi" : {
+      "a[n]:=n" :800
+      },
+    "signatures" : { 
+      "()V" : 1 
+    }
+}     

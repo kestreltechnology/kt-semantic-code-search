@@ -1,0 +1,5 @@
+{
+  "branch-conditions-vmcfs": {
+      "i==32" : 1
+  }
+}

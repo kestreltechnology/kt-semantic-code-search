@@ -1,0 +1,5 @@
+{
+    "libcalls": {
+	"java.io.FileDescriptor.sync": 1
+    }
+}

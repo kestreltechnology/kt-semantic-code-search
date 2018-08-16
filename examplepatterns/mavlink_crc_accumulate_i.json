@@ -1,0 +1,15 @@
+{
+   "method-assignments-vmcfsi": {
+      "(i && n)": 12, 
+      "(i << n)": 3, 
+      "(i >> n)": 2, 
+      "(i ^ i)": 5, 
+      "i:=(i && n)": 12, 
+      "i:=(i << n)": 3, 
+      "i:=(i >> n)": 2, 
+      "i:=(i ^ i)": 5
+   }, 
+   "signatures": {
+      "(BI)I": 1
+   }
+}

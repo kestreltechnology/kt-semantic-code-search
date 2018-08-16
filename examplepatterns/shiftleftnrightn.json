@@ -1,0 +1,6 @@
+{
+   "method-assignments-vmcfsi": {
+      "(i << n)" : 5,
+      "(i >> n)" : 5
+   }
+}

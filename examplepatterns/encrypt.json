@@ -1,0 +1,11 @@
+{
+   "branch-conditions-vmcfsi" : {
+      "(i + n)>arraylength(b)":2
+    },
+    "method-assignments-vmcfsi" : {
+      "i:=0":1
+    },
+    "signatures" : {
+      "([BI[BI)I": 1
+    }
+}     

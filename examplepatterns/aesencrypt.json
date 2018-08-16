@@ -1,0 +1,14 @@
+{
+   "method-assignments-vmcfsi" : {
+      "i:=1" :1 
+      },
+   "branch-conditions-vmcfsi" : {
+      "i<b.f": 1
+    },
+    "signatures" : {
+      "([[I)V" : 1
+    },
+    "sizes" : {
+      "loops": 1
+    } 
+}     

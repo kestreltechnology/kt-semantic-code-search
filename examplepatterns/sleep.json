@@ -1,0 +1,5 @@
+{
+    "libcalls": {
+	"java.lang.Thread.sleep": 1
+    }
+}

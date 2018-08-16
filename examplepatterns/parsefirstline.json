@@ -1,0 +1,81 @@
+{
+   "attrs": {
+      "private": 1, 
+      "static": 1
+   }, 
+   "branch-conditions-v": {
+      "!b.pastFirstLine": 1, 
+      "!b.startsWith(\"http://\")": 1, 
+      "!field(sh.HttpParser.$assertionsDisabled)": 1, 
+      "\"http://\"": 1, 
+      "b": 2, 
+      "b.pastFirstLine": 2, 
+      "b.startsWith(\"http://\")": 2, 
+      "field(sh.HttpParser.$assertionsDisabled)": 2
+   }, 
+   "branch-conditions-vmcfs": {
+      "!b.f": 1, 
+      "!b.m(S)": 1, 
+      "!field(C.f)": 1, 
+      "S": 1, 
+      "b": 2, 
+      "b.f": 2, 
+      "b.m(S)": 2, 
+      "field(C.f)": 2
+   }, 
+   "branch-conditions-vmcfsi": {
+      "!b.f": 1, 
+      "!b.m(S)": 1, 
+      "!field(C.f)": 1, 
+      "S": 1, 
+      "b": 2, 
+      "b.f": 2, 
+      "b.m(S)": 2, 
+      "field(C.f)": 2
+   }, 
+   "method-assignments-v": {
+      "b": 3, 
+      "b.nextToken()": 3, 
+      "b.nextToken().trim()": 3, 
+      "b:=b.nextToken().trim()": 3, 
+      "b:=exn object": 2, 
+      "b:=new StringTokenizer": 1, 
+      "b:=null": 3, 
+      "exn object": 2, 
+      "new StringTokenizer": 1, 
+      "null": 3
+   }, 
+   "method-assignments-vmcfs": {
+      "b": 3, 
+      "b.m()": 3, 
+      "b.m().m()": 3, 
+      "b:=b.m().m()": 3, 
+      "b:=exn object": 2, 
+      "b:=new C": 1, 
+      "b:=null": 3, 
+      "exn object": 2, 
+      "new C": 1, 
+      "null": 3
+   }, 
+   "method-assignments-vmcfsi": {
+      "b": 3, 
+      "b.m()": 3, 
+      "b.m().m()": 3, 
+      "b:=b.m().m()": 3, 
+      "b:=exn object": 2, 
+      "b:=new C": 1, 
+      "b:=null": 3, 
+      "exn object": 2, 
+      "new C": 1, 
+      "null": 3
+   }, 
+   "signatures": {
+      "(Lsoma/http/HttpHeader;Ljava/lang/String;)V": 1
+   }, 
+   "sizes": {
+      "args": 2, 
+      "checked-exns": 1, 
+      "exn-handlers": 2, 
+      "v-calls": 10
+   }
+}

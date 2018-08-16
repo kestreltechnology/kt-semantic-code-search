@@ -1,0 +1,9 @@
+{
+   "method-assignments-vmcfsi" : {
+      "x:=(x * x)":1 ,
+      "x:=1.":1,
+      "x:=(x + 1.)":1 
+      },
+    "signatures" : { "(D)D": 1} ,
+    "sizes": {"loops": 1}
+}     
