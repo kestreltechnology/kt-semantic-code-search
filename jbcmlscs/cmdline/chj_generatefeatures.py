@@ -65,30 +65,32 @@ def execute_cmd(CMD):
         
 
 def generate_features_parallel(args, am, jadmin):
-    count = 0
-    for root, dirs, files in os.walk(args.jarpath):
-        for name in files:
-            if name.endswith('.jar'):
-                fname = os.path.join(root, name)
-                print(fname)
-                jmd5 = am.getjarmd5(fname)
-                if jadmin.hasjar(jmd5):
-                    continue
-                else:
-                    jadmin.registerjarfile(fname, jmd5)
-                    
-                print('Generating features for jar ' + str(count) + ' ... ')
-                count += 1                
+    with timing():
+        count = 0
+        for root, dirs, files in os.walk(args.jarpath):
+            for name in files:
+                if name.endswith('.jar'):
+                    fname = os.path.join(root, name)
+                    jmd5 = am.getjarmd5(fname)
+                    if jadmin.hasjar(jmd5):
+                        continue
+                    else:
+                        jadmin.registerjarfile(fname, jmd5)
+                   
+                    jadmin.prep_dirs(jmd5)	
+ 
+                    print('Generating features for jar ' + str(count) + ' ... ')
+                    count += 1                
 
-                cmd = am.get_generatefeatures_cmd(fname)
-                while(len(multiprocessing.active_children()) >= args.maxprocesses):
-                    pass
+                    cmd = am.get_generatefeatures_cmd(fname)
+                    while(len(multiprocessing.active_children()) >= args.maxprocesses):
+                        pass
 
-                multiprocessing.Process(target=execute_cmd, args=(cmd,)).start()
+                    multiprocessing.Process(target=execute_cmd, args=(cmd,)).start()
 
-    #Wait for feature generation to complete for all jar files
-    while(len(multiprocessing.active_children()) > 0):
-        pass
+        #Wait for feature generation to complete for all jar files
+        while(len(multiprocessing.active_children()) > 0):
+            pass
 
 def generate_features(args, am, jadmin):
     with timing():
@@ -108,8 +110,6 @@ def generate_features(args, am, jadmin):
                         print(args.output)
                         print(args)
                         exit(1)
-                    jadmin.loadfeatures(jmd5)
-
 
 if __name__ == '__main__':
 
@@ -121,11 +121,3 @@ if __name__ == '__main__':
         generate_features_parallel(args, am, jadmin)
     else:
         generate_features(args, am, jadmin)
-
-        jadmin.savefeatures()
-
-        (parentdir,indexbasename,jarfilename) = UF.getindexjarfilename(args.indexedfeaturespath)
-        os.chdir(parentdir)
-        jarcmd = 'jar cf ' + jarfilename + ' ' + indexbasename
-        print(jarcmd)
-        subprocess.call(jarcmd, shell=True)

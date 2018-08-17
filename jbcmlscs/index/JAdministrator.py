@@ -135,15 +135,25 @@ class JAdministrator():
         except zipfile.BadZipfile:
             print(jarfile + ' appears to be corrupted! Skipping.\n')
             
+    def prep_dirs(self, jmd5):
+        (jdm5ix, cmd5s) = self.get_cmd5s(jmd5)
 
+        if cmd5s != None:
+            for cmd5 in cmd5s:
+                filename = UF.getmd5_1111_dir(self.featurespath, cmd5)
 
-    def loadfeatures(self,jmd5):
+    def get_cmd5s(self, jmd5):
         jmd5ix = self.jarmd5index.addjmd5(jmd5)
         # print('jmd5ix = ' + str(jmd5ix))
         cmd5ixs = self.jmd5xref.getjarclassindices(jmd5ix)
-        if cmd5ixs is None: return
+        if cmd5ixs is None: return (jmd5ix, None)
         cmd5s = [ self.classmd5index.getcmd5(x) for x in cmd5ixs
                       if not self.classmd5index.getcmd5(x) is None ]
+        return (jmd5ix, cmd5s)
+
+    def loadfeatures(self,jmd5):
+        (jmd5ix, cmd5s) = self.get_cmd5s(jmd5)
+
         count = 0
         # print('Loading features from ' + self.featurespath + ' ...')
         with timing():
