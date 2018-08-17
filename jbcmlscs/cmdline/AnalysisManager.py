@@ -83,24 +83,11 @@ class AnalysisManager():
         odir = ' -o ' + self.featurespath + ' '
         logdir = ' -log features.jchlog '
         cmd = cmd + f1 + f2 + f3 + f4 + f5 + f6 + f7 + f8 + odir + logdir + jarname
-        print(cmd)
         return cmd
 
 
     def generatefeatures(self,jarname):
-        cmd = self.config.chjcommand
-        f1 = ' -feature method_sizes '
-        f2 = ' -feature method_assignments '
-        f3 = ' -feature method_attrs '
-        f4 = ' -feature method_branch_conditions '
-        f5 = ' -feature method_libcalls '
-        f6 = ' -feature method_literals '
-        f7 = ' -feature method_api-types '
-        f8 = ' -feature method_libcalls_sig '
-        odir = ' -o ' + self.featurespath + ' '
-        logdir = ' -log features.jchlog '
-        cmd = cmd + f1 + f2 + f3 + f4 + f5 + f6 + f7 + f8 + odir + logdir + jarname
-        print(cmd)
+        cmd = self.get_generatefeatures_cmd(jarname)			
         result = subprocess.check_output(cmd, shell=True)
         return result
         
