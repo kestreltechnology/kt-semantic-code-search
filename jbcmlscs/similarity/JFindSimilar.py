@@ -115,6 +115,18 @@ class JFindSimilar():
             jjdoc = ' (' + ','.join(self.docs.getjarnames(docix)) + ')'
             results.append((qresults[i][1],prdoc + jjdoc))
         return results
-            
-            
+
+    def getsimilarityresults_structured(self,count=50,cutoff=0.1):
+        qresults = []
+        for i in range(self.docs.getlength()):
+            if self.similarity[0,i] > cutoff:
+                qresults.append((i,self.similarity[0,i]))
+        qresults = sorted(qresults,key=lambda x:x[1],reverse=True)
+        results = []
+        for i in range(min(len(qresults),count)):
+            docix = self.docids[qresults[i][0]]
+            (package,classname,methodname,signature,jarnames) = self.docs.getdocument(docix)
+            results.append((qresults[i][1],package,classname,methodname,signature,jarnames))
+        return results
+
             
