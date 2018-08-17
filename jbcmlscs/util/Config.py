@@ -36,7 +36,7 @@ class Config():
         '''default settings'''
         self.utildir = os.path.dirname(os.path.abspath(__file__))
         self.rootdir = os.path.dirname(self.utildir)
-        self.bindir = os.path.join(self.rootdir,'bin')
+        self.bindir = os.path.join(self.rootdir,'cmdline')
         self.chjpath = self.bindir
 
         # Update platform as required
