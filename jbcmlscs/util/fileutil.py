@@ -41,7 +41,7 @@ def getdatadir(d,pckmd5,create=True):
     fd2 = os.path.join(fd1,d2)
     fd3 = os.path.join(fd2,d3)
     if not os.path.exists(fd3) and create:
-        # print('Creating directory ' + fd3)
+        print('Creating directory ' + fd3)
         os.makedirs(fd3)
     return fd3
 
@@ -69,10 +69,9 @@ administration file in directory d.
 def createindexdirectories(d):
     if not os.path.exists(d):
         os.makedirs(d)
-    if not os.path.exists(os.path.join(d,'docindex')):
-        os.makedirs(os.path.join(d,'docindex'))
-        os.makedirs(os.path.join(d,'vocabulary'))
-        os.makedirs(os.path.join(d,'data'))
+    if not os.path.exists(os.path.join(d,'docindex')): os.makedirs(os.path.join(d,'docindex'))
+    if not os.path.exists(os.path.join(d,'vocabulary')): os.makedirs(os.path.join(d,'vocabulary'))
+    if not os.path.exists(os.path.join(d,'data')): os.makedirs(os.path.join(d,'data'))
     adminfile = os.path.join(d,'admin.json')
     if not os.path.isfile(adminfile):
         admindict = {}
