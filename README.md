@@ -1,4 +1,4 @@
-# ktjbcmlscs
+# kt-semantic-code-search
 Kestrel Technology tool that implements machine learning techniques to
 perform semantic code search on java byte code
 
@@ -18,14 +18,19 @@ perform semantic code search on java byte code
 
 - generate features (invoke from jbcmlscs/cmdline directory):
   ```
-  python chj_generate_features.py {path to directory with jarfiles} {path
-  to save features} {path to save indexed features}
+  python chj_generatefeatures.py {path to directory with jarfiles} {path
+  to save features}
   ```
   example:
   ```
-  python chj_generate_features.py $HOME/jardir $HOME/features $HOME/indexedfeatures
+  python chj_generate_features.py $HOME/jardir $HOME/features
   ```
-  
+ 
+- index features
+  ```
+  python chj_indexfeatures.py {path to directory with jarfiles} {path
+  to features} {path to save indexed features}
+  ```
   This step creates a jar file with indexed features that has the same
   name as the basename of the path to save indexed features, and is
   saved in the same directory. This jar file is used for the
@@ -41,7 +46,7 @@ perform semantic code search on java byte code
   ```
   example:
   ```
-  python chj_find_similar.py $HOME/indexedfeatures.jar ../../examplepatterns/factorial.json
+  python chj_findsimilar.py $HOME/indexedfeatures.jar ../../examplepatterns/factorial.json
   ```
 
 - or use the indexed feature file provided here:
