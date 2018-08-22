@@ -48,9 +48,8 @@ def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('jarpath',help='directory that contains the jar files of interest')
     parser.add_argument('featurespath',help='features base directory')
-    parser.add_argument('indexedfeaturespath',help='indexed features base directory')
-    parser.add_argument('--maxprocesses', help='number of jars to process in parallel', type=int, default=1)
-    parser.add_argument
+    parser.add_argument('--maxprocesses',help='number of jars to process in parallel', type=int, default=1)
+    parser.add_argument('--noexpand',help='Don\'t descend into directories wtih suffix .jar.DC',action='store_true')
     args = parser.parse_args()
     return args
 
@@ -67,7 +66,11 @@ def execute_cmd(CMD):
 def generate_features_parallel(args, am, jadmin):
     with timing():
         count = 0
-        for root, dirs, files in os.walk(args.jarpath):
+        for root, dirs, files in os.walk(args.jarpath, topdown=True):
+            if args.noexpand:
+                for dirname in dirs:
+                    if dirname.endswith('.jar.DC'):
+                        dirs.remove(dirname)
             for name in files:
                 if name.endswith('.jar'):
                     fname = os.path.join(root, name)
@@ -94,7 +97,7 @@ def generate_features_parallel(args, am, jadmin):
 
 def generate_features(args, am, jadmin):
     with timing():
-        for root, dirs, files in os.walk(args.jarpath):
+        for root, dirs, files in os.walk(args.jarpath, topdown=True):
             for name in files:
                 if name.endswith('.jar'):
                     fname = os.path.join(root,name)
@@ -103,6 +106,9 @@ def generate_features(args, am, jadmin):
                         continue
                     else:
                         jadmin.registerjarfile(fname,jmd5)
+
+                    jadmin.prep_dirs(jmd5)                    
+
                     try:
                         result = am.generatefeatures(fname)
                         print(result)
@@ -115,7 +121,7 @@ if __name__ == '__main__':
 
     args = parse()
     am = AM.AnalysisManager(args.featurespath)
-    jadmin = JAdministrator(args.featurespath, args.indexedfeaturespath)
+    jadmin = JAdministrator(args.featurespath, None)
 
     if args.maxprocesses > 1:
         generate_features_parallel(args, am, jadmin)
