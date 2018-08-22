@@ -95,10 +95,7 @@ class JAdministrator():
     def __init__(self,featurespath,indexedfeaturespath):
         self.featurespath = featurespath
         self.indexpath = indexedfeaturespath
-
-        UF.createindexdirectories(self.indexpath)
-        DC.readdocumentcounter(self.indexpath)
-        
+ 
         self.classmd5index = JClassMd5Index(self.indexpath)
         self.jarmd5index = JJarMd5Index(self.indexpath)
         self.packageindex = JPackageIndex(self.indexpath)
@@ -157,15 +154,16 @@ class JAdministrator():
         count = 0
         # print('Loading features from ' + self.featurespath + ' ...')
         with timing():
-            for cmd5 in cmd5s:
-                filename = UF.getcmd5_filename(self.featurespath,cmd5)
-                if os.path.isfile(filename):
-                    # print('read ' + filename)
-                    xclass = UF.getxnode(filename,'class')
-                    fclass = JClassFeatures(xclass)
-                    self.addclasskeyvaluepairs(fclass,jmd5ix)
-                    count += 1
-                    if count % 10000 == 0: print('==> ' + str(count) + ' classes')
+            if cmd5s != None:
+                for cmd5 in cmd5s:
+                    filename = UF.getcmd5_filename(self.featurespath,cmd5)
+                    if os.path.isfile(filename):
+                        # print('read ' + filename)
+                        xclass = UF.getxnode(filename,'class')
+                        fclass = JClassFeatures(xclass)
+                        self.addclasskeyvaluepairs(fclass,jmd5ix)
+                        count += 1
+                        if count % 10000 == 0: print('==> ' + str(count) + ' classes')
 
     def addpckdata(self,pckmd5):
         if not pckmd5 in self.documents:
@@ -201,6 +199,9 @@ class JAdministrator():
 
     def savefeatures(self):
         # print('Saving features ... ')
+        UF.createindexdirectories(self.indexpath)
+        DC.readdocumentcounter(self.indexpath)
+
         self._reportchanges()
         with timing():
             for p in self.documents: self.documents[p].save()

@@ -33,7 +33,7 @@ import multiprocessing
 from jbcmlscs.index.JAdministrator import JAdministrator
 from jbcmlscs.index.JJarMd5Index import JJarMd5Index
 
-import jbcmlscs.bin.AnalysisManager as AM
+import jbcmlscs.cmdline.AnalysisManager as AM
 import jbcmlscs.util.fileutil as UF
 
 

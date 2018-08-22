@@ -104,6 +104,7 @@ Load docindex json files.
 '''
 def loaddocindexfile(d,name):
     ddict = {}
+    if d == None: return ddict
     filename = os.path.join(os.path.join(d,'docindex'),name + '.json')
     if os.path.isfile(filename):
         with open(filename,'r') as fp:
@@ -162,6 +163,7 @@ def savepackagedigest(d,ddict): return savedocindexfile(d,'pckdigest',ddict)
 
 def loadvocabulary(d):
     ddict = {}
+    if d == None: return ddict
     fdir = os.path.join(d,'vocabulary')
     if os.path.exists(fdir):
         for f in os.listdir(fdir):
@@ -182,6 +184,7 @@ def savevocabulary(d,ddict):
             json.dump(ddict[fs],fp,sort_keys=True,indent=3)
 
 def loaddocoffset(d):
+    if d == None: return 0
     adminfile = os.path.join(d,'admin.json')
     if os.path.isfile(adminfile):
         with open(adminfile,'r') as fp:
@@ -194,6 +197,7 @@ def loaddocoffset(d):
         print('Admin file not found')
 
 def loaddocumentsfile(d,pckmd5):
+    if d == None: return {}
     fdir = getdatadir(os.path.join(d,'data'),pckmd5)
     filename = os.path.join(fdir,pckmd5 + '_documents.json')
     if os.path.isfile(filename):
@@ -205,6 +209,7 @@ def loaddocumentsfile(d,pckmd5):
 
 def loaddatafiles(d,pckmd5):
     ddict = {}
+    if d == None: return ddict
     fdir = getdatadir(os.path.join(d,'data'),pckmd5)
     if os.path.isdir(fdir):
         files = os.listdir(fdir)
