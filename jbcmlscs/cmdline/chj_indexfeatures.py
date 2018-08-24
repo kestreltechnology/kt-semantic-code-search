@@ -81,6 +81,9 @@ if __name__ == '__main__':
 
     (parentdir,indexbasename,jarfilename) = UF.getindexjarfilename(args.indexedfeaturespath)
     os.chdir(parentdir)
-    jarcmd = 'jar cf ' + jarfilename + ' ' + indexbasename
+    data = os.path.join(indexbasename, 'data')
+    docindex = os.path.join(indexbasename, 'docindex')
+    vocabulary = os.path.join(indexbasename, 'vocabulary')
+    jarcmd = ['jar', 'cf', jarfilename, data, docindex, vocabulary ]
     print(jarcmd)
-    subprocess.call(jarcmd, shell=True)
+    subprocess.call(jarcmd)
