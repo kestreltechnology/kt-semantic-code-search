@@ -164,6 +164,8 @@ class JAdministrator():
                         self.addclasskeyvaluepairs(fclass,jmd5ix)
                         count += 1
                         if count % 10000 == 0: print('==> ' + str(count) + ' classes')
+                    else:
+                        print("Warning : " + filename + " not found\n")
 
     def addpckdata(self,pckmd5):
         if not pckmd5 in self.documents:

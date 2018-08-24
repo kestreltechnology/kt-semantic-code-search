@@ -37,17 +37,18 @@ class JClassMd5Index():
         self.indexpath = indexpath
         self.index = UF.loadclassmd5index(self.indexpath)
         self.startlength = len(self.index)
-        self.invindex = None
+        self.invindex = {}
 
     def addcmd5(self,cmd5):
-        self.invindex = None
-        return self.index.setdefault(cmd5,len(self.index))
+        ind = self.index.setdefault(cmd5,len(self.index))        
+        self.invindex.setdefault(ind, cmd5)
+        return ind
 
     def getlength(self):
         return len(self.index)
 
     def getcmd5(self,cmd5ix):
-        self._revertindex()
+        #self._revertindex()
         if cmd5ix in self.invindex:
             return self.invindex[cmd5ix]
 
