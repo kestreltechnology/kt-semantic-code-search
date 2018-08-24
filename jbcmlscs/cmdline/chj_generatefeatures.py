@@ -62,15 +62,18 @@ def execute_cmd(CMD):
         print(args)
         exit(1)
         
+def no_expand(dirnames):
+    for dirname in dirnames:
+        if dirname.endswith('.jar.DC'):
+            dirnames.remove(dirname)
+    return dirnames
 
 def generate_features_parallel(args, am, jadmin):
     with timing():
         count = 0
         for root, dirs, files in os.walk(args.jarpath, topdown=True):
             if args.noexpand:
-                for dirname in dirs:
-                    if dirname.endswith('.jar.DC'):
-                        dirs.remove(dirname)
+                dirs = no_expand(dirs)
             for name in files:
                 if name.endswith('.jar'):
                     fname = os.path.join(root, name)
@@ -98,6 +101,8 @@ def generate_features_parallel(args, am, jadmin):
 def generate_features(args, am, jadmin):
     with timing():
         for root, dirs, files in os.walk(args.jarpath, topdown=True):
+            if args.noexpand:
+                dirs = no_expand(dirs)
             for name in files:
                 if name.endswith('.jar'):
                     fname = os.path.join(root,name)

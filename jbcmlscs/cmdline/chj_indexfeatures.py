@@ -43,12 +43,21 @@ def parse():
     parser.add_argument('jarpath',help='directory that contains the jar files of interest')
     parser.add_argument('featurespath',help='features base directory')
     parser.add_argument('indexedfeaturespath',help='indexed features base directory')
+    parser.add_argument('--noexpand',help='don\'t descend into directories with suffix .jar.DC',action='store_true')
     parser.add_argument
     args = parser.parse_args()
     return args
 
+def no_expand(dirnames):
+    for dirname in dirnames:
+        if dirname.endswith('.jar.DC'):
+            dirnames.remove(dirname)
+    return dirnames
+
 def generate_indices(args, am, jadmin):
     for root, dirs, files in os.walk(args.jarpath):
+        if args.noexpand:
+            dirs = no_expand(dirs)
         for name in files:
             if name.endswith('.jar'):
                 fname = os.path.join(root,name)
