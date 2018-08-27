@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ import json
 featuresetnames = [
         'sizes', 'signatures', 'branch-conditions-v', 'branch-conditions-vmcfs',
         'branch-conditions-vmcfsi', 'method-assignments-v', 'method-assignments-vmcfs',
-        'method-assignments-vmcfsi', 'attrs' ]
+        'method-assignments-vmcfsi', 'attrs', 'libcalls' ]
 
 def parse():
     parser = argparse.ArgumentParser()
@@ -66,6 +66,7 @@ def savequery(mnode,featuresets,queryname):
 if __name__ == '__main__':
 
     args = parse()
+
     xroot = ET.parse(args.classfeaturesfile).find('class')
     for mnode in xroot.find('methods').findall('method'):
         if mnode.get('name') == args.methodname:
