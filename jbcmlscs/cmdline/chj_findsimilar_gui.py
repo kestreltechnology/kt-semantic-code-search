@@ -74,7 +74,7 @@ if __name__ == '__main__':
         print('\n\nConstructing the query matrices ...')
         jquery.search()
     weightings = jquery.getweightings()
-    similarityresults = jquery.getsimilarityresults_structured(count=30)
+    similarityresults = jquery.getsimilarityresults_structured(count=100)
 
     results = {}
     results['methods'] = []
@@ -102,17 +102,36 @@ if __name__ == '__main__':
         results['methods'].append(m)
 
     window = Tk()
+    window.grid_rowconfigure(0, weight=1)
+    window.columnconfigure(0, weight=1)
     window.title('Similarity results for ' + args.pattern)
     window.geometry('1400x800')
+
     style = ttk.Style()
     style.theme_use('default')
     style.configure('black.Horizontal.TProgressBar',background='blue')
 
     notebook = ttk.Notebook(window) 
     tab1 = ttk.Frame(notebook) 
-    tab2 = ttk.Frame(notebook) 
-    notebook.add(tab1, text='term weights') 
-    notebook.add(tab2, text='results')
+
+    tab2 = ttk.Frame(notebook)
+    tab2.grid(sticky='news')
+
+    tab2_cframe = ttk.Frame(tab2)
+    tab2_cframe.grid(row=0, column=0, pady=(5, 0), sticky='nw')
+    tab2_cframe.grid_rowconfigure(0, weight=1)
+    tab2_cframe.grid_columnconfigure(0, weight=1)
+    tab2_cframe.grid_propagate(False)
+
+    canvas = Canvas(tab2_cframe, bg="yellow")
+    canvas.grid(row=0, column=0, sticky="news")
+
+    tab2_scrollbar = ttk.Scrollbar(tab2_cframe, orient="vertical", command=canvas.yview)
+    tab2_scrollbar.grid(row=0, column=1, sticky='ns')
+    canvas.configure(yscrollcommand=tab2_scrollbar.set)
+
+    tab2_lframe = ttk.Frame(canvas)
+    canvas.create_window((0, 0), window=tab2_lframe, anchor='nw')
 
     row = 1
     maxweight = sorted([ f['score'] for f in results['weights'] ],reverse=True)[0]
@@ -120,7 +139,7 @@ if __name__ == '__main__':
     for s in sorted(featuresets):
         if any([ f['featureset'] == s for f in results['weights'] ]):
             lbl = Label(tab1, text=s,font=('Monaco',16),anchor=W,width=25,justify=LEFT)
-            lbl.grid(columnspan=2,row=row)
+            lbl.grid(columnspan=2,row=row, sticky='w')
             row += 1
         for f in sorted(results['weights'],key=lambda f:f['score'],reverse=True):
             if f['featureset'] == s:
@@ -132,33 +151,52 @@ if __name__ == '__main__':
                 lbl.grid(column=1,row=row)
                 row += 1
 
+
+    seqlabels = []
+    progressbars = []
+    methodlabels = []
+    jarlabels = []
+
     row = 1
     maxfqmethodname = sorted([len(m['fqmethodname']) for m in results['methods'] ],reverse=True)[0]
     maxjars = sorted([len(m['jarnames']) for m in results['methods'] ],reverse=True)[0]
     for m in sorted(results['methods'],key=lambda m:m['score'],reverse=True):
-        seqlabel = Label(tab2,text=str(row),font=('Monaco',12),
+        seqlabel = Label(tab2_lframe,text=str(row),font=('Monaco',12),
                              anchor=W,width=2,justify=RIGHT,padx=5)
+        seqlabels.append(seqlabel)
         seqlabel.grid(column=0,row=row)
-        bar = Progressbar(tab2,length=200,style='black.Horizontal.TProgressbar')
+        bar = Progressbar(tab2_lframe,length=200,style='black.Horizontal.TProgressbar')
         bar['value'] = m['score'] * 100.0
+        progressbars.append(bar)
         bar.grid(column=1,row=row)
-        methodlabel = Label(tab2,text=m['fqmethodname'],
+        methodlabel = Label(tab2_lframe,text=m['fqmethodname'],
                                 font=('Monaco',12),
                                 anchor=W,width=maxfqmethodname,
                                 justify=LEFT,padx=5)
-        jarlabel = Label(tab2,text=m['jarnames'],
+        jarlabel = Label(tab2_lframe,text=m['jarnames'],
                              font=('Monaco',12),
                              anchor=W,
                              width=maxjars,justify=LEFT)
+        methodlabels.append(methodlabel)
+        jarlabels.append(jarlabel)
         methodlabel.grid(column=2,row=row)
         jarlabel.grid(column=3,row=row)
         row += 1
-                
+
+    tab2_lframe.update_idletasks()
+
+    labels_width = seqlabels[0].winfo_width() + progressbars[0].winfo_width() + methodlabels[0].winfo_width() + jarlabels[0].winfo_width()
+    numberrows = min(30, len(seqlabels))
+    first5rows_height = sum([seqlabels[i].winfo_height() for i in range(numberrows)])
+    tab2_cframe.config(width=labels_width + tab2_scrollbar.winfo_width(), height=first5rows_height)
+
+    canvas.config(scrollregion=canvas.bbox("all"))
+
+    notebook.add(tab1, text='term weights') 
+    notebook.add(tab2, text='results')
+
     notebook.pack(expand=1, fill='both')
 
     window.mainloop()
 
-    # test comment
-
-    # print(json.dumps(results,indent=4,sort_keys=True))
-              
+    # print(json.dumps(results,indent=4,sort_keys=True))          
