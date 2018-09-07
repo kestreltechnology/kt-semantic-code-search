@@ -90,6 +90,11 @@ class AnalysisManager():
         cmd = self.get_generatefeatures_cmd(jarname)			
         result = subprocess.check_output(cmd, shell=True)
         return result
+
+    def generate_ifeatures(self,jarname):
+        cmd = [ self.config.chjcommand , '-o', self.featurespath, jarname ]
+        result = subprocess.call(cmd, stderr=subprocess.STDOUT)
+        return result
         
 
 

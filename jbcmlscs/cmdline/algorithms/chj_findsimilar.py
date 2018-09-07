@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -68,13 +68,30 @@ if __name__ == '__main__':
         print('\n\nConstructing the query matrices ...')
         jquery.search()
     weightings = jquery.getweightings()
-    similarityresults = jquery.getsimilarityresults(docformat=args.docformat)
+    similarityresults = jquery.getsimilarityresults_structured()
     print('\n\nTerm weights based on their prevalence in the corpus:')
     for r in sorted(weightings):
         w = weightings[r]
         print('  ' + str(w[0]).ljust(20) + str(w[1]).ljust(20)  + ' (' + w[2] + ')')
 
+    results = {}
+    results['methods'] = []
+    results['weights'] = []
+
     print('\n\nMost similar methods:')
-    for (r,name) in similarityresults:
-        print(str(r) + ': ' + name)
+    for (r,package,classname,methodname,signature,jarnames) in similarityresults:
+        m = {}
+        m['score'] = r
+        m['package'] = package
+        m['classname'] = classname
+        m['methodname'] = methodname
+        m['signature'] = signature
+        m['jarnames'] = ','.join([ os.path.basename(x) for x in jarnames ])
+        results['methods'].append(m)
+
+    for m in sorted(results['methods'],key=lambda m:m['score'],reverse=True):
+        print(str(m['score']).ljust(25) + ': ' + str(m['package'] + '.'
+                      + m['classname'] + '.' + m['methodname']
+                      + m['signature']).ljust(50)
+                      + ' (' + m['jarnames'] + ')')
               
