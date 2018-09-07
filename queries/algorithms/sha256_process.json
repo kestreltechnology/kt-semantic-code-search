@@ -1,0 +1,16 @@
+{
+    "conditions": {
+	"(i >= 64)": 1
+    },
+    "inloop-assigns": {
+	"i := ((i xor i) xor (i u>> 10))": 1,
+	"i := ((i xor i) xor (i u>> 3))": 1,
+	"i := (((i + i) + i) + i)": 1,
+	"i := 16": 1,
+	"i := ((((i + ((i xor i) xor i)) + ((i & i) xor ((i xor -1) & i))) + i) + i)": 1,
+	"i := (((i xor i) xor i) + (((i & i) xor (i & i)) xor (i & i)))": 1
+    },
+    "inloop-exprs": {
+	"(((i + i) + i) + i)": 8
+    }
+}
