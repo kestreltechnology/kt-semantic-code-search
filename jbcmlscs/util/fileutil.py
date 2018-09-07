@@ -79,11 +79,42 @@ def createindexdirectories(d):
         with open(adminfile,'w') as fp:
             json.dump(admindict,fp)
 
+def createfeaturesdocdirectory(d):
+    if not os.path.exists(d): os.makedirs(d)
+    docindexdir = os.path.join(d,'docindex')
+    if not os.path.exists(docindexdir): os.makedirs(docindexdir)
+
 def getindexjarfilename(d):
     parentdir = os.path.dirname(d.rstrip(os.sep))
     indexbasename = os.path.basename(d.rstrip(os.sep))
     jarfilename = indexbasename + '.jar'
     return (parentdir,indexbasename,jarfilename)
+
+def load_features_jarmanifest(d):
+    ddict = {}
+    filename = os.path.join(d,'features-jarmanifest.json')
+    if os.path.isfile(filename):
+        with open(filename,'r') as fp:
+            ddict.update(json.load(fp))
+    return ddict
+
+def save_features_jarmanifest(d,ddict):
+    filename = os.path.join(d,'features-jarmanifest.json')
+    with open(filename,'w') as fp:
+        json.dump(ddict,fp,indent=3)
+
+def load_features_classmd5index(d):
+    ddict = {}
+    filename = os.path.join(d,'features-classmd5s.json')
+    if os.path.isfile(filename):
+        with open(filename,'r') as fp:
+            ddict.update(json.load(fp))
+    return ddict
+
+def save_features_classmd5index(d,ddict):
+    filename = os.path.join(d,'features-classmd5s.json')
+    with open(filename,'w') as fp:
+        json.dump(ddict,fp,indent=3)
 
 def loadprojectfile(d):
     ddict = {}
@@ -130,6 +161,8 @@ def loadjarmd5xref(d): return loaddocindexfile(d,'jarmd5xref')
 
 def loadjarnames(d): return loaddocindexfile(d,'jarnames')
 
+def loadjarmanifest(d): return loaddocindexfile(d,'jarmanifest')
+
 def loadpackagedigest(d): return loaddocindexfile(d,'pckdigest')
 
 def savedocindexfile(d,name,ddict):
@@ -157,6 +190,8 @@ def saveclassmd5xref(d,ddict): savedocindexfile(d,'classmd5xref',ddict)
 def savejarmd5xref(d,ddict): savedocindexfile(d,'jarmd5xref',ddict)
 
 def savejarnames(d,ddict): savedocindexfile(d,'jarnames',ddict)
+
+def savejarmanifest(d,ddict): savedocindexfile(d,'jarmanifest',ddict)
 
 def savepackagedigest(d,ddict): return savedocindexfile(d,'pckdigest',ddict)
 
@@ -243,3 +278,7 @@ def getxnode(filename,nodename):
     xroot = ET.parse(filename)
     if not xroot is None:
         return xroot.find(nodename)
+
+def load_features_file(featurespath,cmd5):
+    filename = getcmd5_filename(featurespath,cmd5)
+    return getxnode(filename,'class')
