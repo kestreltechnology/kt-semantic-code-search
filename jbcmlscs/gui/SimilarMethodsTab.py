@@ -31,6 +31,8 @@ from tkinter import ttk
 
 from contextlib import contextmanager
 
+from jbcmlscs.gui.MethodInfoTab import MethodInfoTab
+
 class SimilarMethodsTab():
 
     def __init__(self, parent):
@@ -85,6 +87,7 @@ class SimilarMethodsTab():
             self.methodlabels.append(methodlabel)
             self.jarlabels.append(jarlabel)
             methodlabel.grid(column=2,row=row)
+            methodlabel.bind("<Button-1>", self.methodlabelclick)
             jarlabel.grid(column=3,row=row)
             row += 1
 
@@ -98,3 +101,6 @@ class SimilarMethodsTab():
 
         self.canvas_frame.config(width=labels_width + self.scrollbar.winfo_width(), height=labels_height)
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
+    def methodlabelclick(self, event):
+        new_tab = MethodInfoTab(self.myParent, event.widget.cget("text"))

@@ -43,6 +43,7 @@ from jbcmlscs.similarity.JPattern import JPattern
 from jbcmlscs.similarity.JFindSimilar import JFindSimilar
 
 from jbcmlscs.gui.SimilarMethodsTab import SimilarMethodsTab
+from jbcmlscs.gui.MethodInfoTab import MethodInfoTab
 
 featuresets = [ 'branch-conditions-v', 'branch-conditions-vmcfs',
                     'method-assignments-vmcfs', 'method-assignments-vmcfsi','signatures','sizes']
