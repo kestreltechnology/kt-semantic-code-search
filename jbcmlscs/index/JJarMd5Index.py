@@ -34,6 +34,7 @@ class JJarMd5Index():
         self.indexpath = indexpath
         self.index = UF.loadjarmd5index(self.indexpath)
         self.startlength = len(self.index)
+        self.invindex = None
 
     def addjmd5(self,jmd5):
         return self.index.setdefault(jmd5,len(self.index))
@@ -41,8 +42,16 @@ class JJarMd5Index():
     def hasjmd5(self,jmd5):
         return jmd5 in self.index
 
+    def getjmd5(self,jmd5ix):
+        self._revertindex()
+        return self.invindex[int(jmd5ix)]
+
     def getlength(self):
         return len(self.index)
 
     def save(self):
         UF.savejarmd5index(self.indexpath, self.index)
+
+    def _revertindex(self):
+        if self.invindex is None:
+            self.invindex = { k: v for (v,k) in self.index.items() }

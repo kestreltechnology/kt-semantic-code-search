@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -45,5 +45,10 @@ class JClassMd5Xref():
                 print('Encountered class md5 with different classname and package')
         else:
             self.xref[cmd5ix] = (packageix,classix)
+
+    def getcmd5ix(self,pckix,cnix):
+        print(str(pckix) + ',' + str(cnix))
+        invindex = { (pckix,cnix): v for (v,[pckix,cnix] ) in  self.xref.items() }
+        if (pckix,cnix) in invindex: return int(invindex[ (pckix,cnix) ])
 
     def save(self): UF.saveclassmd5xref(self.indexpath,self.xref)

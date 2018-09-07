@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ It maintains the following mappings in the documents directory:
 - classnames.json        : classname -> class name index
 - classmd5xref           : class md5 index -> (package index, class name index)
 - jarmd5s.json           : jar md5 -> jar md5 index
-- jarnames.json          : jar md5 index -> jarname
+- jarnames.json          : jar md5 index -> jarname list
 - jarmd5xref.json        : jar md5 index -> class md5 index list
 - methodnames.json       : method name -> method name index
 - packages.json          : package name -> package name index
@@ -198,6 +198,59 @@ class JAdministrator():
                         self.pckdigest.add_term(packageix,fs.getname(),termix)
             m.iter(g)
         fclass.iter(f)
+
+    def add_class_ifeatures(self,iclass,jmd5ix):
+        package = iclass.package
+        pckmd5 = hashlib.md5(package.encode(encoding=locale.getpreferredencoding(False))).hexdigest()
+        self.addpckdata(pckmd5)
+        pckdocts = self.documents[pckmd5]
+        pckdata = self.data[pckmd5]
+        packageix = self.packageindex.addpackage(package)
+        classnameix = self.classnameindex.addclassname(iclass.name)
+        classmd5ix = self.classmd5index.addcmd5(iclass.md5)
+        self.classmd5xref.addxref(classmd5ix,packageix,classnameix)
+        def f(m):
+            methodix = self.methodnameindex.addmethodname(m.name)
+            sigix = self.signatureindex.addsignature(m.get_signature())
+            docix = pckdocts.adddocument(classmd5ix,methodix,sigix)
+            sigtermix = self.vocabulary.addterm('signatures',m.get_signature())
+            self.pckdigest.add_term(packageix,'signatures',sigtermix)
+            pckdata.addfeature('signatures',docix,sigtermix,1)
+            self.pckdigest.add_doc(packageix)
+            featureterms = m.get_feature_terms()   #  fs -> term -> fs
+            for fs in featureterms:
+                for t in featureterms[fs]:
+                    termix = self.vocabulary.addterm(fs,t)
+                    pckdata.addfeature(fs,docix,termix,featureterms[fs][t])
+                    self.pckdigest.add_term(packageix,fs,termix)
+        iclass.iter(f)
+
+    def add_class_dbfeatures(self,iclass,jmd5ix):
+        package = iclass.package
+        pckmd5 = hashlib.md5(package.encode(encoding=locale.getpreferredencoding(False))).hexdigest()
+        self.addpckdata(pckmd5)
+        pckdocts = self.documents[pckmd5]
+        pckdata = self.data[pckmd5]
+        packageix = self.packageindex.addpackage(package)
+        classnameix = self.classnameindex.addclassname(iclass.name)
+        classmd5ix = self.classmd5index.addcmd5(iclass.md5)
+        self.classmd5xref.addxref(classmd5ix,packageix,classnameix)
+        def f(m):
+            methodix = self.methodnameindex.addmethodname(m.name)
+            sigix = self.signatureindex.addsignature(m.get_signature())
+            docix = pckdocts.adddocument(classmd5ix,methodix,sigix)
+            sigtermix = self.vocabulary.addterm('signatures',m.get_signature())
+            self.pckdigest.add_term(packageix,'signatures',sigtermix)
+            pckdata.addfeature('signatures',docix,sigtermix,1)
+            self.pckdigest.add_doc(packageix)
+            featureterms = m.get_db_feature_terms()   #  fs -> term -> fs
+            for fs in featureterms:
+                for t in featureterms[fs]:
+                    termix = self.vocabulary.addterm(fs,t)
+                    pckdata.addfeature(fs,docix,termix,featureterms[fs][t])
+                    self.pckdigest.add_term(packageix,fs,termix)
+        iclass.iter(f)
+        
 
     def savefeatures(self):
         # print('Saving features ... ')

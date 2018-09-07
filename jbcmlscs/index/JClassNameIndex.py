@@ -40,6 +40,9 @@ class JClassNameIndex():
     def addclassname(self,classname):
         return self.index.setdefault(classname,len(self.index))
 
+    def getcnix(self,classname):
+        if classname in self.index: return self.index[classname]
+
     def getlength(self):
         return len(self.index)    
 

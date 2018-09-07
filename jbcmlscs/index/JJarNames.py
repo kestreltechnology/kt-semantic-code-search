@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,10 +33,10 @@ class JJarNames():
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.index = UF.loadjarnames(self.indexpath)
+        self.index = UF.loadjarnames(self.indexpath)  # jmd5ix -> jarname list
 
-    def addjar(self,jmd5ix,jarname):
-        self.index[jmd5ix] = jarname
+    def addjar(self,jmd5ix,jarnames):
+        self.index[jmd5ix] = jarnames
 
     def save(self):
         UF.savejarnames(self.indexpath,self.index)

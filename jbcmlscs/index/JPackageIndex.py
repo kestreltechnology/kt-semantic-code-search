@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,9 @@ class JPackageIndex():
 
     def addpackage(self,package):
         return self.index.setdefault(package,len(self.index))
+
+    def getpckix(self,package):
+        if package in self.index: return self.index[package]
 
     def getlength(self):
         return len(self.index)
