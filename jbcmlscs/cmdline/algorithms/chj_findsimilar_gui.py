@@ -43,10 +43,13 @@ from jbcmlscs.similarity.JPattern import JPattern
 from jbcmlscs.similarity.JFindSimilar import JFindSimilar
 
 from jbcmlscs.gui.SimilarMethodsTab import SimilarMethodsTab
+from jbcmlscs.gui.TermWeightsTab import TermWeightsTab
 from jbcmlscs.gui.MethodInfoTab import MethodInfoTab
 
-featuresets = [ 'branch-conditions-v', 'branch-conditions-vmcfs',
-                    'method-assignments-vmcfs', 'method-assignments-vmcfsi','signatures','sizes']
+#featuresets = [ 'branch-conditions-v', 'branch-conditions-vmcfs',
+#                    'method-assignments-vmcfs', 'method-assignments-vmcfsi','signatures','sizes']
+
+featuresets = [ 'assigns', 'conditions', 'literals', 'inloop-assigns', 'inloop-exprs' ]
 
 def parse():
     parser = argparse.ArgumentParser()
@@ -64,22 +67,24 @@ def timing():
     print('Completed in ' + str(time.time() - t0) + ' secs')
 
 class findSimilar():
-    def __init__(self, parent):
+    def __init__(self, parent, featuresets):
+        self.featuresets = featuresets
+
         self.myParent = parent
         self.notebook = ttk.Notebook(self.myParent)
  
-        self.tab1 = ttk.Frame(self.notebook) 
+        self.tab1 = TermWeightsTab(self.notebook) 
         self.tab2 = SimilarMethodsTab(self.notebook)
 
         self.configure_root()
         self.tab2.configure()
-        self.build_tab1(results)
+        self.tab1.build(results, featuresets)
         self.tab2.build(results)
 
         self.tab2.label_frame.update_idletasks()
         self.tab2.calculate_sizes()
 
-        self.notebook.add(self.tab1, text='term weights') 
+        self.notebook.add(self.tab1.tab, text='term weights') 
         self.notebook.add(self.tab2.tab, text='results')
 
         self.notebook.pack(expand=1, fill='both')
@@ -93,25 +98,6 @@ class findSimilar():
         style = ttk.Style()
         style.theme_use('default')
         style.configure('black.Horizontal.TProgressBar',background='blue')
-
-    def build_tab1(self, results):
-        row = 1
-        maxweight = sorted([ f['score'] for f in results['weights'] ],reverse=True)[0]
-        maxwidth = sorted([ len(f['feature']) for f in results['weights'] ], reverse=True)[0]
-        for s in sorted(featuresets):
-            if any([ f['featureset'] == s for f in results['weights'] ]):
-                lbl = Label(self.tab1, text=s,font=('Monaco',16),anchor=W,width=25,justify=LEFT)
-                lbl.grid(columnspan=2,row=row, sticky='w')
-                row += 1
-            for f in sorted(results['weights'],key=lambda f:f['score'],reverse=True):
-                if f['featureset'] == s:
-                    bar = Progressbar(self.tab1,length=200,style='black.Horizontal.TProgressbar')
-                    bar['value'] = f['score'] * (100.0 / maxweight)
-                    bar.grid(column=0,row=row)
-                    lbl = Label(self.tab1, text=f['feature'],
-                                    font=("Monaco", 12),anchor=W,width=maxwidth,justify=LEFT)
-                    lbl.grid(column=1,row=row)
-                    row += 1
 
 if __name__ == '__main__':
 
@@ -154,7 +140,7 @@ if __name__ == '__main__':
         results['methods'].append(m)
 
     window = Tk()
-    myapp = findSimilar(window)
+    myapp = findSimilar(window, featuresets)
     window.mainloop()
 
     # print(json.dumps(results,indent=4,sort_keys=True))          
