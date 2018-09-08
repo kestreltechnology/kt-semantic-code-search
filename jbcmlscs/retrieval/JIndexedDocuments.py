@@ -36,6 +36,10 @@ class JIndexedDocuments():
 
     def getdocids(self): return self.docs.keys()
 
+    def getcmd5ix(self,docix):
+        if docix in self.docs:
+            return self.docs[docix][0]
+
     def getdocument(self,docix):
         if docix in self.docs:
             (cmd5ix,mnix,sigix) = self.docs[docix]

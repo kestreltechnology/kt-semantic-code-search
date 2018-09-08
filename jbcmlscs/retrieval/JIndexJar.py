@@ -42,7 +42,7 @@ Directory structure of the jar file:
 - admin.json : contains the number of documents  (document offset)
 
 - docindex
-    - jarnames.json     : jarmd5 -> jarname
+    - jarnames.json     : jarmd5-ix -> jarname list
     - classmd5.json     : classmd5 -> classmd5-ix
     - classmd5xref.json : classmd5-ix -> (packagename-ix, classname-ix)
     - classnames.json   : classname -> classname-ix
@@ -145,7 +145,7 @@ class JIndexJar():
         jarmd5xref = self.getjarmd5xref()
         for jarix in jarmd5xref:
             if cmd5ix in jarmd5xref[jarix]: result.append(jarix)
-        return [ self.getjarnames()[jarix] for jarix in result ]
+        return sum([ self.getjarnames()[jarix] for jarix in result ],[])
 
     def getdocuments(self,pckmd5s):
         ddict = {}
