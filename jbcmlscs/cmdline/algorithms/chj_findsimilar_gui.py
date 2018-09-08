@@ -35,7 +35,6 @@ import time
 from tkinter import * 
 from tkinter.ttk import Progressbar 
 from tkinter import ttk
-
 from contextlib import contextmanager
 
 from jbcmlscs.retrieval.JIndexJar import JIndexJar
@@ -98,6 +97,7 @@ class findSimilar():
         style = ttk.Style()
         style.theme_use('default')
         style.configure('black.Horizontal.TProgressBar',background='blue')
+        style.configure('.', font=('Monaco', 16))
 
 if __name__ == '__main__':
 
