@@ -27,11 +27,10 @@
 
 import json
 
-class JPattern:
+class JSearchTerms:
 
-    def __init__(self,fname):
-        with open(fname,'r') as fp:
-            self.pattern = json.load(fp)
+    def __init__(self,pattern):
+        self.pattern = pattern
 
     def getfeaturesets(self):
         return self.pattern.keys()
