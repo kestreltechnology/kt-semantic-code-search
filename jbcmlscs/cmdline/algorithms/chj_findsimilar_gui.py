@@ -54,6 +54,7 @@ def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('indexedfeaturesjar',help='indexedcorpus jarfile')
     parser.add_argument('pattern',help='json file with feature patterns')
+    parser.add_argument('--featurespath',default=None,help='directory that holds the features')
     parser.add_argument('--packages',nargs='*',
                         help='restrict query to the class files with these package names')
     args = parser.parse_args()
@@ -66,14 +67,14 @@ def timing():
     print('Completed in ' + str(time.time() - t0) + ' secs')
 
 class findSimilar():
-    def __init__(self, parent, featuresets):
+    def __init__(self, parent, featuresets, fpath):
         self.featuresets = featuresets
 
         self.myParent = parent
         self.notebook = ttk.Notebook(self.myParent)
  
         self.tab1 = TermWeightsTab(self.notebook) 
-        self.tab2 = SimilarMethodsTab(self.notebook)
+        self.tab2 = SimilarMethodsTab(self.notebook, fpath)
 
         self.configure_root()
         self.tab2.configure()
@@ -140,7 +141,7 @@ if __name__ == '__main__':
         results['methods'].append(m)
 
     window = Tk()
-    myapp = findSimilar(window, featuresets)
+    myapp = findSimilar(window, featuresets, args.featurespath)
     window.mainloop()
 
     # print(json.dumps(results,indent=4,sort_keys=True))          

@@ -31,11 +31,20 @@ from tkinter import ttk
 
 from contextlib import contextmanager
 
+from jbcmlscs.features.JClassFeatures import JClassFeatures
+from jbcmlscs.index.JClassMd5Index import JClassMd5Index
+from jbcmlscs.index.JJarMd5Index import JJarMd5Index
+from jbcmlscs.index.JJarNames import JJarNames
+from jbcmlscs.index.JClassNameIndex import JClassNameIndex
+from jbcmlscs.index.JPackageIndex import JPackageIndex
+from jbcmlscs.index.JClassMd5Xref import JClassMd5Xref
+
 from jbcmlscs.gui.MethodInfoTab import MethodInfoTab
+from jbcmlscs.gui.ExtendedLabel import ExtendedLabel
 
 class SimilarMethodsTab():
 
-    def __init__(self, parent):
+    def __init__(self, parent, fpath):
         self.myParent = parent
         self.tab = ttk.Frame(parent)
 
@@ -49,6 +58,14 @@ class SimilarMethodsTab():
         self.progressbars = []
         self.methodlabels = []
         self.jarlabels = []
+
+        self.fpath = fpath
+        if fpath != None:
+            self.classmd5index = JClassMd5Index(fpath)             # cmd5 -> cmd5 index
+            self.jarmd5index = JJarMd5Index(fpath)                 # jmd5 -> jmd5 index
+            self.packageindex = JPackageIndex(fpath)               # package name ->  pck index
+            self.classnameindex = JClassNameIndex(fpath)           # class name -> class name index
+            self.classmd5xref = JClassMd5Xref(fpath)               # cmd5 -> (pck index, cnix)
 
     def configure(self):
         self.canvas_frame.grid(row=0, column=0, pady=(5, 0), sticky='nw')
@@ -76,10 +93,15 @@ class SimilarMethodsTab():
             bar['value'] = m['score'] * 100.0
             self.progressbars.append(bar)
             bar.grid(column=1,row=row)
-            methodlabel = Label(self.label_frame,text=m['fqmethodname'],
+            methodlabel = ExtendedLabel(m['package'] + '.' + m['classname'], m['methodname'],
+                                self.label_frame, text=m['fqmethodname'],
                                 font=('Monaco',12),
                                 anchor=W,width=maxfqmethodname,
                                 justify=LEFT,padx=5)
+            #methodlabel = Label(self.label_frame,text=m['fqmethodname'],
+            #                    font=('Monaco',12),
+            #                    anchor=W,width=maxfqmethodname,
+            #                    justify=LEFT,padx=5)
             jarlabel = Label(self.label_frame,text=m['jarnames'],
                                  font=('Monaco',12),
                                  anchor=W,
@@ -99,8 +121,12 @@ class SimilarMethodsTab():
             self.jarlabels[0].winfo_width()
         labels_height = sum([self.seqlabels[i].winfo_height() for i in range(rowcount)])
 
+        #self.canvas_frame.config(width=labels_width + self.scrollbar.winfo_width())
         self.canvas_frame.config(width=labels_width + self.scrollbar.winfo_width(), height=labels_height)
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
     def methodlabelclick(self, event):
-        new_tab = MethodInfoTab(self.myParent, event.widget.cget("text"))
+        if self.fpath != None:
+            classname = event.widget.get_classname()
+            methodname = event.widget.get_methodname()
+            new_tab = MethodInfoTab(self.myParent, self, classname, methodname)
