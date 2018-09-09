@@ -100,10 +100,6 @@ class SimilarMethodsTab():
                                 font=('Monaco',12),
                                 anchor=W,width=maxfqmethodname,
                                 justify=LEFT,padx=5)
-            #methodlabel = Label(self.label_frame,text=m['fqmethodname'],
-            #                    font=('Monaco',12),
-            #                    anchor=W,width=maxfqmethodname,
-            #                    justify=LEFT,padx=5)
             jarlabel = Label(self.label_frame,text=m['jarnames'],
                                  font=('Monaco',12),
                                  anchor=W,

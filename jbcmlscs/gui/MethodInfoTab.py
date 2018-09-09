@@ -42,44 +42,28 @@ class MethodInfoTab():
         self.tab = ttk.Frame(parent)
         self.tab.grid(sticky='news')
 
-        names = classname.split('.')
-        package = '.'.join(names[:-1])
-        cn = names[-1]
-        pckix = origin.packageindex.getpckix(package)
-        if pckix is None:
-            print('package ' + package + ' not found')
-            exit(-1)
-        cnix = origin.classnameindex.getcnix(cn)
-        if cnix is None:
-            print('classname ' + cn + ' not found')
-            exit(-1)
+        info = self.process_info(classname, origin)
+        if type(info) is str:
+            full_text = info
+        else:
+            (pckix, cnix, cmd5ix, cmd5) = info
 
-        cmd5ix = origin.classmd5xref.getcmd5ix(pckix,cnix)
-        if cmd5ix is None:
-            print('Error: no class found for ' + classname)
-            exit(-1)
+            lines = []
 
-        cmd5 = origin.classmd5index.getcmd5(cmd5ix)
-        if cmd5 is None:
-            print('Error: no cmd5 found for ' + classname + ' (cmd5ix = ' + str(cmd5ix))
-            exit(-1)
-
-        lines = []
-
-        xclass = UF.load_features_file(origin.fpath,cmd5)
-        iclass = IClassFeatures(xclass)
-        lines.append(iclass.package + '.' + iclass.name)
-        for m in iclass.methods:
-            if m.name == methodname or methodname == 'all':
-                maxdepth = m.cfg.max_depth()
-                lines.append('\n  ' + m.name + ' (' + str(m.instrs) + ')')
-                lines.append('   max depth: ' + str(maxdepth))
-                for pc in sorted(m.features):
-                    lines.append('     ' + str(pc).rjust(3) + '  '
+            xclass = UF.load_features_file(origin.fpath,cmd5)
+            iclass = IClassFeatures(xclass)
+            lines.append(iclass.package + '.' + iclass.name)
+            for m in iclass.methods:
+                if m.name == methodname or methodname == 'all':
+                    maxdepth = m.cfg.max_depth()
+                    lines.append('\n  ' + m.name + ' (' + str(m.instrs) + ')')
+                    lines.append('   max depth: ' + str(maxdepth))
+                    for pc in sorted(m.features):
+                        lines.append('     ' + str(pc).rjust(3) + '  '
                             + str(m.levels(pc)).rjust(maxdepth) + '  ' + str(m.features[pc]))
 
-        full_text = '\n'.join(lines)
-        max_width = max([len(line) for line in lines])
+            full_text = '\n'.join(lines)
+            #max_width = max([len(line) for line in lines])
 
         text_widget = Text(self.tab, width=120, height=40)
         text_widget.insert(END, full_text)
@@ -101,6 +85,10 @@ class MethodInfoTab():
 
         self.myParent.add(self.tab, text=self.make_abbrev_name(classname, methodname))
 
+    def closeTab(self, event):
+        current_tab = self.myParent.select()
+        self.myParent.forget(current_tab)
+
     def make_abbrev_name(self, classname, methodname):
         abbrev_name = ''
         classname_segments = classname.split('.')
@@ -109,6 +97,32 @@ class MethodInfoTab():
         abbrev_name = abbrev_name + '.' + methodname
         return abbrev_name
 
-    def closeTab(self, event):
-        current_tab = self.myParent.select()
-        self.myParent.forget(current_tab)
+    def process_info(self, classname, origin):
+        names = classname.split('.')
+        package = '.'.join(names[:-1])
+        cn = names[-1]
+        pckix = origin.packageindex.getpckix(package)
+        if pckix is None:
+            errorinfo = 'package ' + package + ' not found'
+            print(errorinfo)
+            return errorinfo
+ 
+        cnix = origin.classnameindex.getcnix(cn)
+        if cnix is None:
+            errorinfo = 'classname ' + cn + ' not found'
+            print(errorinfo)
+            return errorinfo
+
+        cmd5ix = origin.classmd5xref.getcmd5ix(pckix,cnix)
+        if cmd5ix is None:
+            errorinfo = 'Error: no class found for ' + classname
+            print(errorinfo)
+            return errorinfo
+
+        cmd5 = origin.classmd5index.getcmd5(cmd5ix)
+        if cmd5 is None:
+            errorinfo = 'Error: no cmd5 found for ' + classname + ' (cmd5ix = ' + str(cmd5ix)
+            print(errorinfo)
+            return errorinfo
+
+        return (pckix, cnix, cmd5ix, cmd5)
