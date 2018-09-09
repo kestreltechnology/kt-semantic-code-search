@@ -48,7 +48,7 @@ from jbcmlscs.gui.MethodInfoTab import MethodInfoTab
 #featuresets = [ 'branch-conditions-v', 'branch-conditions-vmcfs',
 #                    'method-assignments-vmcfs', 'method-assignments-vmcfsi','signatures','sizes']
 
-featuresets = [ 'assigns', 'conditions', 'literals', 'inloop-assigns', 'inloop-exprs' ]
+featuresets = [ 'assigns', 'exprs', 'conditions', 'literals', 'inloop-assigns', 'inloop-conditions', 'inloop-exprs', 'signatures', 'return' ]
 
 def parse():
     parser = argparse.ArgumentParser()
