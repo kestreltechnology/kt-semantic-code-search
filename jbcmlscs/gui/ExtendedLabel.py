@@ -25,9 +25,7 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-from tkinter import *
-from tkinter.ttk import Progressbar
-from tkinter import ttk
+from tkinter import Label
 
 class ExtendedLabel(Label):
     def __init__(self, className, methodName, master=None, **options):

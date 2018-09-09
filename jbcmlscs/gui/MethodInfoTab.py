@@ -25,9 +25,10 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-from tkinter import *
-from tkinter.ttk import Progressbar
 from tkinter import ttk
+from tkinter import Text
+from tkinter import Button
+from tkinter import END
 
 from jbcmlscs.ifeatures.IClassFeatures import IClassFeatures
 

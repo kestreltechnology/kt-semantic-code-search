@@ -25,9 +25,11 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-from tkinter import *
-from tkinter.ttk import Progressbar
 from tkinter import ttk
+from tkinter.ttk import Progressbar
+from tkinter import Canvas
+from tkinter import Label
+from tkinter import LEFT, RIGHT, W
 
 from contextlib import contextmanager
 
