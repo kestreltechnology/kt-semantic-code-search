@@ -119,12 +119,12 @@ class findSimilar():
 
     def add_menu(self):
         menubar = Menu(self.myParent)
-        filemenu = Menu(menubar, tearoff=0)
+        filemenu = Menu(menubar, font=('MS Sans Serif', 14), tearoff=0)
         filemenu.add_command(label="Open", command=self.load_query)
-        filemenu.add_command(label="Close Tab", command=self.close_tab)
+        filemenu.add_command(label="Close", command=self.close_tab)
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=self.myParent.quit)
-        menubar.add_cascade(label="File", menu=filemenu)
+        menubar.add_cascade(label="File", font=('MS Sans Serif', 14), menu=filemenu)
         self.myParent.config(menu=menubar)
 
     def load_query(self):
