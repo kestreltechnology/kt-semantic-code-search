@@ -128,8 +128,8 @@ class findSimilar():
         self.myParent.config(menu=menubar)
 
     def load_query(self):
-        pattern = filedialog.askopenfile(parent=self.myParent,mode='rb',title='Choose a file')
-        self.pattern = pattern.name
+        pattern = str(filedialog.askopenfile(parent=self.myParent,mode='rb',title='Choose a file').name)
+        self.pattern = pattern
         jquery = get_query(self.jindexjar, self.packages, pattern) 
         self.build_tabs(jquery)
 

@@ -30,11 +30,8 @@ import json
 class JPattern:
 
     def __init__(self,fname):
-        if isinstance(fname, str):
-            with open(fname,'r') as fp:
-                self.pattern = json.load(fp)
-        else:
-            self.pattern=json.load(fname)
+        with open(fname,'r') as fp:
+            self.pattern = json.load(fp)
 
     def getfeaturesets(self):
         return self.pattern.keys()
