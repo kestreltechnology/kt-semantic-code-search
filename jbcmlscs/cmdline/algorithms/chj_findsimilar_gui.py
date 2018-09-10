@@ -35,6 +35,8 @@ import time
 from tkinter import * 
 from tkinter.ttk import Progressbar 
 from tkinter import ttk
+from tkinter import filedialog
+ 
 from contextlib import contextmanager
 
 from jbcmlscs.retrieval.JIndexJar import JIndexJar
@@ -67,14 +69,29 @@ def timing():
     print('Completed in ' + str(time.time() - t0) + ' secs')
 
 class findSimilar():
-    def __init__(self, parent, featuresets, fpath):
+    def __init__(self, parent, jindexjar, fpath, packages, pattern):
         self.featuresets = featuresets
 
         self.myParent = parent
         self.notebook = ttk.Notebook(self.myParent)
- 
+        self.add_menu() 
+
+        self.packages = packages
+        self.pattern = pattern
+        self.jindexjar = jindexjar
+        self.jquery = get_query(jindexjar, packages, pattern)
+        self.fpath = fpath
+
+        self.tab1 = None
+        self.tab2 = None
+
+        self.build_tabs(self.jquery)
+
+    def build_tabs(self, jquery):
+        results = get_results(jquery) 
+
         self.tab1 = TermWeightsTab(self.notebook) 
-        self.tab2 = SimilarMethodsTab(self.notebook, fpath)
+        self.tab2 = SimilarMethodsTab(self.notebook, self.fpath)
 
         self.configure_root()
         self.tab2.configure()
@@ -92,7 +109,7 @@ class findSimilar():
     def configure_root(self):
         self.myParent.grid_rowconfigure(0, weight=1)
         self.myParent.columnconfigure(0, weight=1)
-        self.myParent.title('Similarity results for ' + args.pattern)
+        self.myParent.title('Similarity results for ' + self.pattern)
         self.myParent.geometry('1400x800')
 
         style = ttk.Style()
@@ -100,15 +117,41 @@ class findSimilar():
         style.configure('black.Horizontal.TProgressBar',background='blue')
         style.configure('.', font=('Monaco', 16))
 
-if __name__ == '__main__':
+    def add_menu(self):
+        menubar = Menu(self.myParent)
+        filemenu = Menu(menubar, tearoff=0)
+        filemenu.add_command(label="Open", command=self.load_query)
+        filemenu.add_command(label="Close Tab", command=self.close_tab)
+        filemenu.add_separator()
+        filemenu.add_command(label="Exit", command=self.myParent.quit)
+        menubar.add_cascade(label="File", menu=filemenu)
+        self.myParent.config(menu=menubar)
 
-    args = parse()
+    def load_query(self):
+        pattern = filedialog.askopenfile(parent=self.myParent,mode='rb',title='Choose a file')
+        self.pattern = pattern.name
+        jquery = get_query(self.jindexjar, self.packages, pattern) 
+        self.build_tabs(jquery)
+
+    def close_tab(self):
+        current_tab = self.notebook.select()
+        self.notebook.forget(current_tab) 
+
+def load_index(args):
     with timing():
         print('\nLoading the corpus ...')
         jindexjar = JIndexJar(args.indexedfeaturesjar)
-        pcks = jindexjar.getallpckmd5s(args.packages)
-        jpattern = JPattern(args.pattern)
+    return jindexjar
+
+def get_query(jindexjar, packages, pattern):
+    with timing():
+        print('\nLoading the corpus ...')
+        pcks = jindexjar.getallpckmd5s(packages)
+        jpattern = JPattern(pattern)
         jquery = JFindSimilar(jindexjar,jpattern,pcks)
+    return jquery
+
+def get_results(jquery):
     with timing():
         print('\n\nConstructing the query matrices ...')
         jquery.search()
@@ -140,8 +183,16 @@ if __name__ == '__main__':
                                  + shortsignature)
         results['methods'].append(m)
 
+    return results
+
+
+if __name__ == '__main__':
+    args = parse()
+    
+    jindexjar = load_index(args)
+
     window = Tk()
-    myapp = findSimilar(window, featuresets, args.featurespath)
+    myapp = findSimilar(window, jindexjar, args.featurespath, args.packages, args.pattern)
     window.mainloop()
 
     # print(json.dumps(results,indent=4,sort_keys=True))          
