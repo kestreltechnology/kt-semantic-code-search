@@ -25,23 +25,12 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-from jbcmlscs.features.JMethodFeatures import JMethodFeatures
 
-class JClassFeatures:
+class ExceptionHandler(object):
 
-    def __init__(self,xnode):
+    def __init__(self,imethod,xnode):
+        self.imethod = imethod
         self.xnode = xnode
-
-    def getclassname(self): return self.xnode.get('name')
-
-    def getmd5(self): return self.xnode.get('md5')
-
-    def getpackage(self): return self.xnode.get('package')
-
-    def getmethods(self): 
-        return (JMethodFeatures(x) 
-                for x in self.xnode.find('methods').findall('method'))
-
-    def iter(self,f): 
-        for m in self.getmethods(): f(m)
-          
+        self.startpc = int(self.xnode.get('spc'))
+        self.endpc = int(self.xnode.get('epc'))
+        self.handlerpc = int(self.xnode.get('hpc'))

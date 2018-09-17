@@ -25,20 +25,18 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-from jbcmlscs.features.JFeatureSet import JFeatureSet
+class CfgBlock():
 
-class JMethodFeatures():
-
-    def __init__(self,xnode):
+    def  __init__(self,cfg,xnode,firstpc,lastpc):
+        self.cfg = cfg
         self.xnode = xnode
+        self.firstpc = firstpc
+        self.lastpc = lastpc
+        self.looplevels = []
+        self._initialize()
 
-    def getname(self): return self.xnode.get('name')
-
-    def getsignature(self): return self.xnode.get('sig')
-
-    def getfeaturesets(self): 
-        return (JFeatureSet(x) 
-                for x in self.xnode.find('method-features').findall('feature-set'))
-
-    def iter(self,f): 
-        for s in self.getfeaturesets():f(s)
+    def _initialize(self):
+        lnode = self.xnode.find('loops')
+        if lnode is None: return
+        for v in lnode.findall('lvl'):
+            self.looplevels.append(int(v.get('pc')))

@@ -25,31 +25,38 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-tfidf_featuresets = [  "branch-conditions-v" ,
-                       "branch-conditions-vmcfs" ,
-                       "branch-conditions-vmcfsi" ,
-                       "method-assignments-v",
-                       "method-assignments-vmcfs" ,
-                       "method-assignments-vmcfsi" ,
-                       "literals" ,
-                       "api-types" ,
-                       "attrs" ,
-                       "sizes" ,
-                       "libcalls",
-                        "libcalls-sig"]
 
-class JFeatureSet():
+class FeatureContext():
 
-    def __init__(self,xnode):
-        self.xnode = xnode
+    def __init__(self,methodfeatures,pc):
+        self.methodfeatures = methodfeatures
+        self.pc = pc
+        self.throwstmt = False
+        self.returnstmt = False
+        self.condition = False        
+        self.procedurecall = None
+        self.assignment = None
+        self.function_return_value = None
 
-    def getname(self): return self.xnode.get('name')
+    def is_inloop(self):
+        return self.methodfeatures.get_loop_nesting_level(self.pc) > 0
 
-    def istfidf(self): return self.getname() in tfidf_featuresets
+    def get_loop_nesting_level(self):
+        return self.methodfeatures.get_loop_nesting_level(self.pc)
 
-    def getkeyvaluepairs(self):
-        result = []
-        for bnode in self.xnode.findall('block'):
-            for knode in bnode.findall('kv'):
-                result.append((knode.get('k'),int(knode.get('v'))))
-        return result
+    def set_function_call_return_value(self,cms):
+        self.function_return_value = cms
+
+    def unset_function_call_return_value(self):
+        self.function_return_value = None
+        
+    def set_throw_stmt(self): self.throwstmt = True
+
+    def set_return_stmt(self): self.returnstmt = True
+
+    def set_procedure_call_stmt(self,cms): self.procedurecall = cms
+
+    def set_assignment(self,lhs): self.assignment = lhs
+
+    def set_condition(self): self.condition = True
+
