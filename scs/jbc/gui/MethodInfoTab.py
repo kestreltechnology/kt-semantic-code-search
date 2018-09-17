@@ -30,9 +30,9 @@ from tkinter import Text
 from tkinter import Button
 from tkinter import END
 
-from jbcmlscs.ifeatures.IClassFeatures import IClassFeatures
+from scs.jbc.features.ClassFeatures import ClassFeatures
 
-import jbcmlscs.util.fileutil as UF
+import scs.jbc.util.fileutil as UF
 
 class MethodInfoTab():
 
@@ -51,7 +51,7 @@ class MethodInfoTab():
             lines = []
 
             xclass = UF.load_features_file(origin.fpath,cmd5)
-            iclass = IClassFeatures(xclass)
+            iclass = ClassFeatures(xclass)
             lines.append(iclass.package + '.' + iclass.name)
             for m in iclass.methods:
                 if m.name == methodname or methodname == 'all':
@@ -101,25 +101,25 @@ class MethodInfoTab():
         names = classname.split('.')
         package = '.'.join(names[:-1])
         cn = names[-1]
-        pckix = origin.packageindex.getpckix(package)
+        pckix = origin.packageindex.get_pckix(package)
         if pckix is None:
             errorinfo = 'package ' + package + ' not found'
             print(errorinfo)
             return errorinfo
  
-        cnix = origin.classnameindex.getcnix(cn)
+        cnix = origin.classnameindex.get_cnix(cn)
         if cnix is None:
             errorinfo = 'classname ' + cn + ' not found'
             print(errorinfo)
             return errorinfo
 
-        cmd5ix = origin.classmd5xref.getcmd5ix(pckix,cnix)
+        cmd5ix = origin.classmd5xref.get_cmd5ix(pckix,cnix)
         if cmd5ix is None:
             errorinfo = 'Error: no class found for ' + classname
             print(errorinfo)
             return errorinfo
 
-        cmd5 = origin.classmd5index.getcmd5(cmd5ix)
+        cmd5 = origin.classmd5index.get_cmd5(cmd5ix)
         if cmd5 is None:
             errorinfo = 'Error: no cmd5 found for ' + classname + ' (cmd5ix = ' + str(cmd5ix)
             print(errorinfo)

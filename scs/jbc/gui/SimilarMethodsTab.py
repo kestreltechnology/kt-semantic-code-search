@@ -33,16 +33,16 @@ from tkinter import LEFT, RIGHT, W
 
 from contextlib import contextmanager
 
-from jbcmlscs.features.JClassFeatures import JClassFeatures
-from jbcmlscs.index.JClassMd5Index import JClassMd5Index
-from jbcmlscs.index.JJarMd5Index import JJarMd5Index
-from jbcmlscs.index.JJarNames import JJarNames
-from jbcmlscs.index.JClassNameIndex import JClassNameIndex
-from jbcmlscs.index.JPackageIndex import JPackageIndex
-from jbcmlscs.index.JClassMd5Xref import JClassMd5Xref
+from scs.jbc.features.ClassFeatures import ClassFeatures
+from scs.jbc.index.ClassMd5Index import ClassMd5Index
+from scs.jbc.index.JarMd5Index import JarMd5Index
+from scs.jbc.index.JarNames import JarNames
+from scs.jbc.index.ClassNameIndex import ClassNameIndex
+from scs.jbc.index.PackageIndex import PackageIndex
+from scs.jbc.index.ClassMd5Xref import ClassMd5Xref
 
-from jbcmlscs.gui.MethodInfoTab import MethodInfoTab
-from jbcmlscs.gui.ExtendedLabel import ExtendedLabel
+from scs.jbc.gui.MethodInfoTab import MethodInfoTab
+from scs.jbc.gui.ExtendedLabel import ExtendedLabel
 
 class SimilarMethodsTab():
 
@@ -63,11 +63,11 @@ class SimilarMethodsTab():
 
         self.fpath = fpath
         if fpath != None:
-            self.classmd5index = JClassMd5Index(fpath)             # cmd5 -> cmd5 index
-            self.jarmd5index = JJarMd5Index(fpath)                 # jmd5 -> jmd5 index
-            self.packageindex = JPackageIndex(fpath)               # package name ->  pck index
-            self.classnameindex = JClassNameIndex(fpath)           # class name -> class name index
-            self.classmd5xref = JClassMd5Xref(fpath)               # cmd5 -> (pck index, cnix)
+            self.classmd5index = ClassMd5Index(fpath)             # cmd5 -> cmd5 index
+            self.jarmd5index = JarMd5Index(fpath)                 # jmd5 -> jmd5 index
+            self.packageindex = PackageIndex(fpath)               # package name ->  pck index
+            self.classnameindex = ClassNameIndex(fpath)           # class name -> class name index
+            self.classmd5xref = ClassMd5Xref(fpath)               # cmd5 -> (pck index, cnix)
 
     def configure(self):
         self.canvas_frame.grid(row=0, column=0, pady=(5, 0), sticky='nw')
