@@ -25,20 +25,28 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import jbcmlscs.util.fileutil as UF
+import scs.jbc.util.fileutil as UF
 
-class JPackageDigest():
+class PackageDigest():
+    """Maintains an index from package index to a document count and term postings.
+
+    For each feature set it maintains a list of terms that appear in the set of
+    documents in this package. The purpose of the package digests is to determine
+    if the document postings for this package should be loaded for a particular
+    query. 
+
+    Index format:  pckix -> (doccount, fs -> termix list)
+    """
 
     def __init__(self,indexpath,digest=None):
         self.indexpath = indexpath
         if digest is None:
-            self.digest = UF.loadpackagedigest(self.indexpath)  # pck-ix -> (doccount, fs -> term-ix list)
+            self.digest = UF.load_package_digest(self.indexpath)
         else:
             self.digest = digest
-        print('Package digest: ' + str(len(self.digest)))
         self.digestsets = {}     # pck-ix -> fs -> term-ix set
 
-    def setdigest(self,pckix,digest): self.digest[pckix] = digest
+    def set_digest(self,pckix,digest): self.digest[pckix] = digest
 
     def _get_pck_digest(self,pckix,fs):
         if pckix in self.digestsets and fs in self.digestsets[pckix]: return
@@ -76,7 +84,7 @@ class JPackageDigest():
 
     def save(self):
         self._update_digest()
-        UF.savepackagedigest(self.indexpath, self.digest)
+        UF.save_package_digest(self.indexpath, self.digest)
 
     def __str__(self):
         lines = []

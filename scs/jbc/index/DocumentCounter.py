@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,36 +25,28 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import jbcmlscs.util.fileutil as UF
+import scs.jbc.util.fileutil as UF
 
-'''
-Vocabulary index for all featuresets intended for index construction.
-'''
+class DocumentCounter():
 
-class JVocabulary:
+    def __init__(self):
+        self.previouscounter = 0
+        self.counter = 0
+        self.ipath = None
 
-    def __init__(self,indexpath):
-        self.indexpath = indexpath
-                                       # featuresetname -> featurename -> feature-ix
-        self.featuresets = UF.loadvocabulary(self.indexpath)
-        self.startlengths = {}
-        for fs in self.featuresets:
-            self.startlengths[fs] = len(self.featuresets[fs])  
+    def initialize(self,ipath):
+        self.ipath = ipath
+        self.counter = UF.load_docoffset(ipath)
+        self.previouscounter = self.counter
 
-    def getfeaturesets(self):
-        return self.featuresets.keys()
-                        
-    def getlength(self,featureset): 
-        return len(self.featuresets[featureset])
+    def request_doc_id(self):
+        self.counter += 1
+        return self.counter
 
-    def getstartlength(self,featureset):
-        if not featureset in self.startlengths: self.startlengths[featureset] = 0
-        return self.startlengths[featureset]
+    def save(self):
+        UF.save_docoffset(self.ipath,self.counter)
 
-    def addterm(self,featureset,term):
-        if not featureset in self.featuresets: self.featuresets[featureset] = {}
-        ftermset = self.featuresets[featureset]
-        termix = ftermset.setdefault(term,len(ftermset))
-        return termix
+    def __str__(self): return str(self.counter)
 
-    def save(self): UF.savevocabulary(self.indexpath,self.featuresets)
+
+documentcounter = DocumentCounter()

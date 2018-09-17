@@ -28,28 +28,34 @@
 import os
 import json
 
-import jbcmlscs.util.fileutil as UF
-import jbcmlscs.index.JDocumentCounter as DC
+import scs.jbc.util.fileutil as UF
 
-'''
-Document index for a given jmd5 intended for index construction.
-'''
+class ClassMd5Index():
+    '''Maps class md5 to its local index.'''
 
-class JDocuments():
-
-
-    def __init__(self,indexpath,pckmd5):
+    def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.pckmd5 = pckmd5
-        self.documents = UF.loaddocumentsfile(self.indexpath,pckmd5)  # doc-ix -> (cmd5-ix, method-ix, sig-ix)
+        self.index = UF.load_classmd5_index(self.indexpath)
+        self.startlength = len(self.index)
+        self.invindex = None
 
-    def size(self): return len(self.documents)
-        
-    def adddocument(self,cmd5ix,methodix,sigix):
-        docix = DC.requestdocid()
-        self.documents[docix] = (cmd5ix,methodix,sigix)
-        return docix
+    def has_cmd5(self,cmd5): return cmd5 in self.index
+
+    def add_cmd5(self,cmd5):
+        ind = self.index.setdefault(cmd5,len(self.index))        
+        return ind
+
+    def get_length(self):
+        return len(self.index)
+
+    def get_cmd5(self,cmd5ix):
+        self._revertindex()
+        if cmd5ix in self.invindex:
+            return self.invindex[cmd5ix]
 
     def save(self):
-        UF.savedocumentsfile(self.indexpath,self.pckmd5,self.documents)
+        UF.save_classmd5_index(self.indexpath, self.index)
 
+    def _revertindex(self):
+        if self.invindex is None:
+            self.invindex = { v: k for (k,v) in self.index.items() }

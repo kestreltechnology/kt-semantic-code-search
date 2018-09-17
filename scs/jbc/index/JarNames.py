@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,18 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import jbcmlscs.util.fileutil as UF
 
-class JSignatureIndex():
+import scs.jbc.util.fileutil as UF
+
+class JarNames():
+    '''Maintains a relationship between jarmd5 and jarname.'''
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.index = UF.loadsignatureindex(self.indexpath)
-        self.startlength = len(self.index)
+        self.index = UF.load_jarnames(self.indexpath)  # jmd5ix -> jarname list
 
-    def addsignature(self,signature):
-        return self.index.setdefault(signature,len(self.index))
-
-    def getlength(self):
-        return len(self.index)
+    def add_jar(self,jmd5ix,jarnames):
+        self.index[jmd5ix] = jarnames
 
     def save(self):
-        UF.savesignatureindex(self.indexpath, self.index)
+        UF.save_jarnames(self.indexpath,self.index)

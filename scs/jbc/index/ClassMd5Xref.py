@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,33 +25,31 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import jbcmlscs.util.fileutil as UF
+import os
+import json
 
-class JJarMd5Index():
-    '''Creates an index for jar Md5s: jarmd5 -> index.'''
+import scs.jbc.util.fileutil as UF
+
+class ClassMd5Xref():
+    """Relates classmd5 index to package index and classname index"""
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.index = UF.loadjarmd5index(self.indexpath)
-        self.startlength = len(self.index)
-        self.invindex = None
+        self.xref = UF.load_classmd5_xref(self.indexpath)
 
-    def addjmd5(self,jmd5):
-        return self.index.setdefault(jmd5,len(self.index))
+    def add_xref(self,cmd5ix,pckix,cnix):
+        if cmd5ix in self.xref:
+            (ipckix,icnix) = self.xref[cmd5ix]
+            if ipckix == pckix and icnix == cnix:
+                return
+            else:
+                print('Encountered class md5 with different classname and package')
+        else:
+            self.xref[cmd5ix] = (pckix,cnix)
 
-    def hasjmd5(self,jmd5):
-        return jmd5 in self.index
+    """Returns the classmd5 index for a given package and classname index"""
+    def get_cmd5ix(self,pckix,cnix):
+        invindex = { (ipckix,icnix): v for (v,[ipckix,icnix] ) in  self.xref.items() }
+        if (pckix,cnix) in invindex: return int(invindex[ (pckix,cnix) ])
 
-    def getjmd5(self,jmd5ix):
-        self._revertindex()
-        return self.invindex[int(jmd5ix)]
-
-    def getlength(self):
-        return len(self.index)
-
-    def save(self):
-        UF.savejarmd5index(self.indexpath, self.index)
-
-    def _revertindex(self):
-        if self.invindex is None:
-            self.invindex = { k: v for (v,k) in self.index.items() }
+    def save(self): UF.save_classmd5_xref(self.indexpath,self.xref)

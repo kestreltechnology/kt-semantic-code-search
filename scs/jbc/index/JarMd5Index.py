@@ -25,30 +25,33 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import os
-import json
+import scs.jbc.util.fileutil as UF
 
-import jbcmlscs.util.fileutil as UF
-
-class JClassMd5Xref():
+class JarMd5Index():
+    '''Creates an index for jar Md5s: jarmd5 -> index.'''
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.xref = UF.loadclassmd5xref(self.indexpath)
+        self.index = UF.load_jarmd5_index(self.indexpath)
+        self.startlength = len(self.index)
+        self.invindex = None
 
-    def addxref(self,cmd5ix,packageix,classix):
-        if cmd5ix in self.xref:
-            (pckix,clix) = self.xref[cmd5ix]
-            if pckix == packageix and clix == classix:
-                return
-            else:
-                print('Encountered class md5 with different classname and package')
-        else:
-            self.xref[cmd5ix] = (packageix,classix)
+    def add_jmd5(self,jmd5):
+        return self.index.setdefault(jmd5,len(self.index))
 
-    def getcmd5ix(self,pckix,cnix):
-        print(str(pckix) + ',' + str(cnix))
-        invindex = { (pckix,cnix): v for (v,[pckix,cnix] ) in  self.xref.items() }
-        if (pckix,cnix) in invindex: return int(invindex[ (pckix,cnix) ])
+    def has_jmd5(self,jmd5):
+        return jmd5 in self.index
 
-    def save(self): UF.saveclassmd5xref(self.indexpath,self.xref)
+    def get_jmd5(self,jmd5ix):
+        self._revertindex()
+        return self.invindex[int(jmd5ix)]
+
+    def get_length(self):
+        return len(self.index)
+
+    def save(self):
+        UF.save_jarmd5_index(self.indexpath, self.index)
+
+    def _revertindex(self):
+        if self.invindex is None:
+            self.invindex = { k: v for (v,k) in self.index.items() }

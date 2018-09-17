@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,25 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import jbcmlscs.util.fileutil as UF
+import os
+import json
 
-class JMethodNameIndex():
+import scs.jbc.util.fileutil as UF
+
+class ClassNameIndex():
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.index = UF.loadmethodnameindex(self.indexpath)
+        self.index = UF.load_classname_index(self.indexpath)
         self.startlength = len(self.index)
 
-    def addmethodname(self,methodname):
-        return self.index.setdefault(methodname,len(self.index))
+    def add_classname(self,cn):
+        return self.index.setdefault(cn,len(self.index))
 
-    def getlength(self):
-        return len(self.index)
+    def get_cnix(self,cn):
+        if cn in self.index: return self.index[cn]
+
+    def get_length(self): return len(self.index)    
 
     def save(self):
-        UF.savemethodnameindex(self.indexpath, self.index)
+        UF.save_classname_index(self.indexpath, self.index)

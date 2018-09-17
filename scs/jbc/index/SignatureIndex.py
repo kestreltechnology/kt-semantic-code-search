@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,35 +25,18 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import os
-import json
+import scs.jbc.util.fileutil as UF
 
-import jbcmlscs.util.fileutil as UF
-
-class JClassMd5Index():
-    '''Maps class md5 to its local index.'''
+class SignatureIndex():
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.index = UF.loadclassmd5index(self.indexpath)
+        self.index = UF.load_signature_index(self.indexpath)
         self.startlength = len(self.index)
-        self.invindex = None
 
-    def addcmd5(self,cmd5):
-        ind = self.index.setdefault(cmd5,len(self.index))        
-        return ind
+    def add_signature(self,signature):
+        return self.index.setdefault(signature,len(self.index))
 
-    def getlength(self):
-        return len(self.index)
+    def get_length(self): return len(self.index)
 
-    def getcmd5(self,cmd5ix):
-        self._revertindex()
-        if cmd5ix in self.invindex:
-            return self.invindex[cmd5ix]
-
-    def save(self):
-        UF.saveclassmd5index(self.indexpath, self.index)
-
-    def _revertindex(self):
-        if self.invindex is None:
-            self.invindex = { v: k for (k,v) in self.index.items() }
+    def save(self): UF.save_signature_index(self.indexpath, self.index)

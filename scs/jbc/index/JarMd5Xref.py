@@ -25,31 +25,29 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import hashlib
+import scs.jbc.util.fileutil as UF
 
-import jbcmlscs.util.fileutil as UF
-
-class JPackageIndex():
+class JarMd5Xref():
+    '''Relates jar md5 indices to the class md5 indices in the jar.'''
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.index = UF.loadpackageindex(self.indexpath)
-        self.startlength = len(self.index)
+        self.xref = UF.load_jarmd5_xref(self.indexpath)
 
-    def addpackage(self,package):
-        return self.index.setdefault(package,len(self.index))
+    def add_xref(self,jmd5ix,cmd5ix):
+        if not jmd5ix in self.xref:
+            self.xref[jmd5ix] = []
+        if not (cmd5ix in self.xref[jmd5ix]):
+            self.xref[jmd5ix].append(cmd5ix)
 
-    def getpckix(self,package):
-        if package in self.index: return self.index[package]
+    def get_jar_class_indices(self,jmd5ix):
+        if jmd5ix in self.xref: return self.xref[jmd5ix]
 
-    def getlength(self):
-        return len(self.index)
+    def get_jarixs_for_classix(self,cmd5ix):
+        result = []
+        for jarix in self.xref:
+            if cmd5ix in self.xref[jarix]: result.append(jarix)
+        return result
 
-    def getmd5s(self):
-        return [ hashlib.md5(x).hexdigest() for x in self.index ]
-
-    def getmd5ixs(self):
-        return [ (hashlib.md5(x).hexdigest(),self.index[x]) for x in self.index ]
-
-    def save(self):
-        UF.savepackageindex(self.indexpath, self.index)
+    def save(self): UF.save_jarmd5_xref(self.indexpath,self.xref)
+            

@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,29 +25,18 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import os
-import json
+import scs.jbc.util.fileutil as UF
 
-documentcounter = -1
+class MethodNameIndex():
 
-def readdocumentcounter(d):
-    global documentcounter
-    adminfile = os.path.join(d,'admin.json')
-    if not os.path.isfile(adminfile):
-        documentcounter = -1
-    else:
-        with open(adminfile,'r') as fp:
-            ddict = json.load(fp)
-        documentcounter = ddict['docoffset']
+    def __init__(self,indexpath):
+        self.indexpath = indexpath
+        self.index = UF.load_methodname_index(self.indexpath)
+        self.startlength = len(self.index)
 
-def requestdocid():
-    global documentcounter
-    documentcounter += 1
-    return documentcounter
+    def add_methodname(self,methodname):
+        return self.index.setdefault(methodname,len(self.index))
 
-def savedocumentcounter(d):
-    adminfile = os.path.join(d,'admin.json')
-    admindict = {}
-    admindict['docoffset'] = documentcounter
-    with open(adminfile,'w') as fp:
-        json.dump(admindict,fp)
+    def get_length(self): return len(self.index)
+
+    def save(self): UF.save_methodname_index(self.indexpath, self.index)

@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,26 +25,30 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import os
-import json
+import scs.jbc.util.fileutil as UF
+import scs.jbc.index.DocumentCounter as DC
 
-import jbcmlscs.util.fileutil as UF
+class Documents():
+    """Maintains a relationship between docix and cmd5ix, methodix, sigix per package
 
-class JClassNameIndex():
+    Form of index: docix -> (cmd5ix, methodix, sigix)
 
-    def __init__(self,indexpath):
+    Document indices are assigned globally (across all packages) by the document
+    counter.
+    """
+
+    def __init__(self,indexpath,pckmd5):
         self.indexpath = indexpath
-        self.index = UF.loadclassnameindex(self.indexpath)
-        self.startlength = len(self.index)
+        self.pckmd5 = pckmd5
+        self.documents = UF.load_documents_file(self.indexpath,pckmd5)  
 
-    def addclassname(self,classname):
-        return self.index.setdefault(classname,len(self.index))
-
-    def getcnix(self,classname):
-        if classname in self.index: return self.index[classname]
-
-    def getlength(self):
-        return len(self.index)    
+    def size(self): return len(self.documents)
+        
+    def add_document(self,cmd5ix,methodix,sigix):
+        docix = DC.documentcounter.request_doc_id()
+        self.documents[docix] = (cmd5ix,methodix,sigix)
+        return docix
 
     def save(self):
-        UF.saveclassnameindex(self.indexpath, self.index)
+        UF.save_documents_file(self.indexpath,self.pckmd5,self.documents)
+

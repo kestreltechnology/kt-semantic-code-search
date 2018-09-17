@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,19 +25,23 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import jbcmlscs.util.fileutil as UF
+import scs.jbc.util.fileutil as UF
 
-class JData:
+class Postings():
+    """Maintains the posting list per package
+
+    Data format: featureset -> docix -> termix -> data (freq)
+    """
 
     def __init__(self,indexpath,pckmd5):
         self.indexpath = indexpath
-        self.pckmd5 = pckmd5          # package md5
-        self.data = UF.loaddatafiles(self.indexpath,pckmd5)   # featureset -> docix -> termix -> data (freq)
+        self.pckmd5 = pckmd5                                     # package md5
+        self.data = UF.load_postings_files(self.indexpath,pckmd5) 
 
-    def getsize(self,fs):
+    def size(self,fs):
         return sum( [ len(self.data[fs][x]) for x in self.data[fs] ] )
 
-    def addfeature(self,featureset,docix,termix,freq):
+    def add_posting(self,featureset,docix,termix,freq):
         if freq > 0:
             if not featureset in self.data: 
                 self.data[featureset] = {}
@@ -46,7 +50,7 @@ class JData:
             self.data[featureset][docix][termix] = freq
 
     def digest(self,size):
-        digest = {}        # fs -> set(termix)
+        digest = {}                                         # fs -> set(termix)
         digest['docs'] = size
         digest['terms'] = {}
         for fs in self.data:
@@ -59,4 +63,4 @@ class JData:
         return digest
 
     def save(self): 
-        UF.savedatafiles(self.indexpath,self.pckmd5,self.data)
+        UF.save_postings_files(self.indexpath,self.pckmd5,self.data)

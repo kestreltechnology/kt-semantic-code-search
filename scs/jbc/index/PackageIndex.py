@@ -25,18 +25,29 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
+import hashlib
 
-import jbcmlscs.util.fileutil as UF
+import scs.jbc.util.fileutil as UF
 
-class JJarNames():
-    '''Maintains a relationship between jarmd5 and jarname.'''
+class PackageIndex():
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.index = UF.loadjarnames(self.indexpath)  # jmd5ix -> jarname list
+        self.index = UF.load_package_index(self.indexpath)
+        self.startlength = len(self.index)
 
-    def addjar(self,jmd5ix,jarnames):
-        self.index[jmd5ix] = jarnames
+    def add_package(self,package):
+        return self.index.setdefault(package,len(self.index))
 
-    def save(self):
-        UF.savejarnames(self.indexpath,self.index)
+    def get_pckix(self,package):
+        if package in self.index: return self.index[package]
+
+    def get_length(self): return len(self.index)
+
+    def get_md5s(self):
+        return [ hashlib.md5(x).hexdigest() for x in self.index ]
+
+    def get_md5ixs(self):
+        return [ (hashlib.md5(x).hexdigest(),self.index[x]) for x in self.index ]
+
+    def save(self): UF.save_package_index(self.indexpath, self.index)

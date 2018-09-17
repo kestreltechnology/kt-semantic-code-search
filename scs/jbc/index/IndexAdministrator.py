@@ -25,7 +25,7 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-'''
+"""
 Controls the incorporation of the features of a new jar into an existing index
 or starts a new index if none exists.
 
@@ -39,7 +39,7 @@ package.
 - featurespath: directory that holds the xml features
 - indexedfeaturespath: directory that contains the index
 
-It maintains the following mappings in the documents directory:
+It maintains the following mappings in the docindex directory of the index:
 - classmd5s.json         : class md5 -> class md5 index
 - classnames.json        : classname -> class name index
 - classmd5xref           : class md5 index -> (package index, class name index)
@@ -56,33 +56,31 @@ For every featureset the vocabulary directory contains a file
 For every package (directory name derived from the package name md5):
 - x_documents.json       : document index -> (class md5 index, method name index, signature index)
 - x_<featurename>.json   : document index -> term index -> data (frequency)
+"""
 
-'''
 import locale
 import os
 import subprocess
 import time, hashlib, zipfile
 from contextlib import contextmanager
 
-import jbcmlscs.util.fileutil as UF
-import jbcmlscs.index.JDocumentCounter as DC
+import scs.jbc.util.fileutil as UF
+import scs.jbc.index.DocumentCounter as DC
 
-from jbcmlscs.features.JClassFeatures import JClassFeatures
-from jbcmlscs.index.JClassMd5Index import JClassMd5Index
-from jbcmlscs.index.JJarMd5Index import JJarMd5Index
-from jbcmlscs.index.JJarMd5Xref import JJarMd5Xref
-from jbcmlscs.index.JJarNames import JJarNames
-from jbcmlscs.index.JClassNameIndex import JClassNameIndex
-from jbcmlscs.index.JMethodNameIndex import JMethodNameIndex
-from jbcmlscs.index.JPackageIndex import JPackageIndex
-from jbcmlscs.index.JSignatureIndex import JSignatureIndex
-from jbcmlscs.index.JPackageDigest import JPackageDigest
+from scs.jbc.index.ClassMd5Index import ClassMd5Index
+from scs.jbc.index.JarMd5Index import JarMd5Index
+from scs.jbc.index.JarMd5Xref import JarMd5Xref
+from scs.jbc.index.JarNames import JarNames
+from scs.jbc.index.ClassNameIndex import ClassNameIndex
+from scs.jbc.index.ClassMd5Xref import ClassMd5Xref
+from scs.jbc.index.MethodNameIndex import MethodNameIndex
+from scs.jbc.index.PackageIndex import PackageIndex
+from scs.jbc.index.SignatureIndex import SignatureIndex
+from scs.jbc.index.PackageDigest import PackageDigest
 
-from jbcmlscs.index.JData import JData
-from jbcmlscs.index.JDocuments import JDocuments
-from jbcmlscs.index.JVocabulary import JVocabulary
-
-from jbcmlscs.index.JClassMd5Xref import JClassMd5Xref
+from scs.jbc.index.Postings import Postings
+from scs.jbc.index.Documents import Documents
+from scs.jbc.index.Vocabulary import Vocabulary
 
 @contextmanager
 def timing():
@@ -90,28 +88,29 @@ def timing():
     yield
     print('Completed in ' + str(time.time() - t0))
 
-class JAdministrator():
+class IndexAdministrator():
 
-    def __init__(self,featurespath,indexedfeaturespath):
+    def __init__(self,featurespath,indexpath):
         self.featurespath = featurespath
-        self.indexpath = indexedfeaturespath
+        self.indexpath = indexpath
+        DC.documentcounter.initialize(self.indexpath)
  
-        self.classmd5index = JClassMd5Index(self.indexpath)
-        self.jarmd5index = JJarMd5Index(self.indexpath)
-        self.packageindex = JPackageIndex(self.indexpath)
-        self.classnameindex = JClassNameIndex(self.indexpath)
-        self.methodnameindex = JMethodNameIndex(self.indexpath)
-        self.signatureindex = JSignatureIndex(self.indexpath)
-        self.vocabulary = JVocabulary(self.indexpath)
-        self.classmd5xref = JClassMd5Xref(self.indexpath)
-        self.jmd5xref = JJarMd5Xref(self.indexpath)
-        self.jarnames = JJarNames(self.indexpath)
-        self.pckdigest = JPackageDigest(self.indexpath)
+        self.classmd5index = ClassMd5Index(self.indexpath)
+        self.jarmd5index = JarMd5Index(self.indexpath)
+        self.packageindex = PackageIndex(self.indexpath)
+        self.classnameindex = ClassNameIndex(self.indexpath)
+        self.methodnameindex = MethodNameIndex(self.indexpath)
+        self.signatureindex = SignatureIndex(self.indexpath)
+        self.vocabulary = Vocabulary(self.indexpath)
+        self.classmd5xref = ClassMd5Xref(self.indexpath)
+        self.jmd5xref = JarMd5Xref(self.indexpath)
+        self.jarnames = JarNames(self.indexpath)
+        self.pckdigest = PackageDigest(self.indexpath)
 
-        self.documents = {}       #   pckmd5 -> JDocuments
-        self.data = {}            #   pckmd5 -> JData
+        self.documents = {}       #   pckmd5 -> Documents
+        self.data = {}            #   pckmd5 -> Postings
 
-    def hasjar(self,jmd5): return self.jarmd5index.hasjmd5(jmd5)
+    def has_jar(self,jmd5): return self.jarmd5index.has_jmd5(jmd5)
 
     def registerjarfile(self,jarfile,jmd5):
         jmd5ix = self.jarmd5index.addjmd5(jmd5)
@@ -167,10 +166,10 @@ class JAdministrator():
                     else:
                         print("Warning : " + filename + " not found\n")
 
-    def addpckdata(self,pckmd5):
+    def add_pck_postings(self,pckmd5):
         if not pckmd5 in self.documents:
-            self.documents[pckmd5] = JDocuments(self.indexpath,pckmd5)
-            self.data[pckmd5] = JData(self.indexpath,pckmd5)
+            self.documents[pckmd5] = Documents(self.indexpath,pckmd5)
+            self.data[pckmd5] = Postings(self.indexpath,pckmd5)
 
     def addclasskeyvaluepairs(self,fclass,jmd5ix):
         package = fclass.getpackage()
@@ -199,31 +198,34 @@ class JAdministrator():
             m.iter(g)
         fclass.iter(f)
 
-    def add_class_ifeatures(self,iclass,jmd5ix):
-        package = iclass.package
+    def has_cmd5(self,cmd5): return self.classmd5index.has_cmd5(cmd5)        
+
+    def add_class_features(self,classfeatures,jmd5ix,recorder):
+        package = classfeatures.package
         pckmd5 = hashlib.md5(package.encode(encoding=locale.getpreferredencoding(False))).hexdigest()
-        self.addpckdata(pckmd5)
+        self.add_pck_postings(pckmd5)
         pckdocts = self.documents[pckmd5]
         pckdata = self.data[pckmd5]
-        packageix = self.packageindex.addpackage(package)
-        classnameix = self.classnameindex.addclassname(iclass.name)
-        classmd5ix = self.classmd5index.addcmd5(iclass.md5)
-        self.classmd5xref.addxref(classmd5ix,packageix,classnameix)
+        packageix = self.packageindex.add_package(package)
+        classnameix = self.classnameindex.add_classname(classfeatures.name)
+        classmd5ix = self.classmd5index.add_cmd5(classfeatures.md5)
+        self.classmd5xref.add_xref(classmd5ix,packageix,classnameix)
         def f(m):
-            methodix = self.methodnameindex.addmethodname(m.name)
-            sigix = self.signatureindex.addsignature(m.get_signature())
-            docix = pckdocts.adddocument(classmd5ix,methodix,sigix)
-            sigtermix = self.vocabulary.addterm('signatures',m.get_signature())
+            methodix = self.methodnameindex.add_methodname(m.name)
+            sigix = self.signatureindex.add_signature(m.get_signature())
+            docix = pckdocts.add_document(classmd5ix,methodix,sigix)
+            sigtermix = self.vocabulary.add_term('signatures',m.get_signature())
             self.pckdigest.add_term(packageix,'signatures',sigtermix)
-            pckdata.addfeature('signatures',docix,sigtermix,1)
+            pckdata.add_posting('signatures',docix,sigtermix,1)
             self.pckdigest.add_doc(packageix)
-            featureterms = m.get_feature_terms()   #  fs -> term -> fs
+            m.get_feature_terms(recorder)
+            featureterms = recorder.results
             for fs in featureterms:
                 for t in featureterms[fs]:
-                    termix = self.vocabulary.addterm(fs,t)
-                    pckdata.addfeature(fs,docix,termix,featureterms[fs][t])
+                    termix = self.vocabulary.add_term(fs,t)
+                    pckdata.add_posting(fs,docix,termix,featureterms[fs][t])
                     self.pckdigest.add_term(packageix,fs,termix)
-        iclass.iter(f)
+        classfeatures.iter(f)
 
     def add_class_dbfeatures(self,iclass,jmd5ix):
         package = iclass.package
@@ -252,10 +254,10 @@ class JAdministrator():
         iclass.iter(f)
         
 
-    def savefeatures(self):
-        # print('Saving features ... ')
-        UF.createindexdirectories(self.indexpath)
-        DC.readdocumentcounter(self.indexpath)
+    def save_features(self):
+        print('Saving features ... ')
+        UF.create_index_directories(self.indexpath)
+        # DC.readdocumentcounter(self.indexpath)
 
         self._reportchanges()
         with timing():
@@ -272,21 +274,33 @@ class JAdministrator():
             self.classmd5xref.save()
             self.jmd5xref.save()
             self.jarnames.save()
-            DC.savedocumentcounter(self.indexpath)
+            DC.documentcounter.save()
+
+    def jar_features(self):
+        (parentdir,indexbasename,jarfilename) = UF.get_indexjar_filename(self.indexpath)
+        os.chdir(parentdir)
+        postings = os.path.join(indexbasename,'postings')
+        docindex = os.path.join(indexbasename,'docindex')
+        vocabulary = os.path.join(indexbasename,'vocabulary')
+        documentcounter = os.path.join(indexbasename,'documentcounter.json')
+        jarcmd = [ 'jar', 'cf', jarfilename, documentcounter, postings, docindex,vocabulary ]
+        print(jarcmd)
+        subprocess.call(jarcmd)
 
     def _reportchanges(self):
         result = {}
         result['packages'] = (self.packageindex.startlength,
-                              self.packageindex.getlength())
+                              self.packageindex.get_length())
         result['classes'] = (self.classmd5index.startlength,
-                             self.classmd5index.getlength())
+                             self.classmd5index.get_length())
         result['classnames'] = (self.classnameindex.startlength,
-                                self.classnameindex.getlength())
+                                self.classnameindex.get_length())
         result['methodnames'] = (self.methodnameindex.startlength,
-                                 self.methodnameindex.getlength())
+                                 self.methodnameindex.get_length())
         result['signatures'] = (self.signatureindex.startlength,
-                                self.signatureindex.getlength())
-        print('documents: ' + str(DC.documentcounter))
+                                self.signatureindex.get_length())
+        print('documents: ' + str(DC.documentcounter) + ' (was '
+                  + str(DC.documentcounter.previouscounter) + ')')
         print('index'.ljust(14) + 'old'.rjust(8) + 'new'.rjust(8))
         print('-' * 60)
         for name in sorted(result):
@@ -295,12 +309,12 @@ class JAdministrator():
         print('')
         print('vocabulary'.ljust(30) + 'old'.rjust(10) + 'new'.rjust(10))
         print('-' * 60)
-        featuresets = self.vocabulary.getfeaturesets()
+        featuresets = self.vocabulary.featuresets
         for fs in sorted(featuresets):
-            print(fs.ljust(30) + str(self.vocabulary.getstartlength(fs)).rjust(10) +
-                  str(self.vocabulary.getlength(fs)).rjust(10))
-        oldtotal = sum([ self.vocabulary.getstartlength(fs) for fs in featuresets])
-        newtotal = sum([ self.vocabulary.getlength(fs) for fs in featuresets])
+            print(fs.ljust(30) + str(self.vocabulary.get_start_length(fs)).rjust(10) +
+                  str(self.vocabulary.get_length(fs)).rjust(10))
+        oldtotal = sum([ self.vocabulary.get_start_length(fs) for fs in featuresets])
+        newtotal = sum([ self.vocabulary.get_length(fs) for fs in featuresets])
         print('-' * 60)
         print('total'.ljust(30) + str(oldtotal).rjust(10) + str(newtotal).rjust(10))
         print('-' * 60)

@@ -25,29 +25,32 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import jbcmlscs.util.fileutil as UF
+import scs.jbc.util.fileutil as UF
 
-class JJarMd5Xref():
-    '''Related jar md5 indices to the class md5 indices in the jar.'''
+class Vocabulary():
+    """Maintains a relationship between feature names and termix.
+
+    Format of the index: featureset name -> feature name (term) -> termix
+    """
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.xref = UF.loadjarmd5xref(self.indexpath)
+        self.featuresets = UF.load_vocabulary(self.indexpath)
+        self.startlengths = {}
+        for fs in self.featuresets:
+            self.startlengths[fs] = len(self.featuresets[fs])  
+                        
+    def get_length(self,featureset): 
+        return len(self.featuresets[featureset])
 
-    def addxref(self,jmd5ix,cmd5ix):
-        if not jmd5ix in self.xref:
-            self.xref[jmd5ix] = []
-        if not (cmd5ix in self.xref[jmd5ix]):
-            self.xref[jmd5ix].append(cmd5ix)
+    def get_start_length(self,featureset):
+        if not featureset in self.startlengths: self.startlengths[featureset] = 0
+        return self.startlengths[featureset]
 
-    def getjarclassindices(self,jmd5ix):
-        if jmd5ix in self.xref: return self.xref[jmd5ix]
+    def add_term(self,featureset,term):
+        if not featureset in self.featuresets: self.featuresets[featureset] = {}
+        ftermset = self.featuresets[featureset]
+        termix = ftermset.setdefault(term,len(ftermset))
+        return termix
 
-    def getjarixsforclassix(self,cmd5ix):
-        result = []
-        for jarix in self.xref:
-            if cmd5ix in self.xref[jarix]: result.append(jarix)
-        return result
-
-    def save(self): UF.savejarmd5xref(self.indexpath,self.xref)
-            
+    def save(self): UF.save_vocabulary(self.indexpath,self.featuresets)
