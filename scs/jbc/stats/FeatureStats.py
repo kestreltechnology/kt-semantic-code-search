@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,36 +30,37 @@ import os
 import json
 import zipfile
 
-import jbcmlscs.util.fileutil as UF
+import jbcmlscs.jbc.util.fileutil as UF
 
-from jbcmlscs.retrieval.JIndexedData import JIndexedData
-from jbcmlscs.retrieval.JIndexedVocabulary import JIndexedVocabulary
-from jbcmlscs.retrieval.JIndexedDocuments import JIndexedDocuments
-from jbcmlscs.retrieval.JReverseIndex import JReverseIndex
+from scs.jbc.retrieval.IndexedPostings import IndexedPostings
+from scs.jbc.retrieval.IndexedVocabulary import IndexedVocabulary
+from scs.jbc.retrieval.IndexedDocuments import IndexedDocuments
+from scs.jbc.retrieval.ReverseIndex import ReverseIndex
 
-class JStats():
+class FeatureStats():
 
-    def __init__(self,jindexjar,pckmd5s):
-        self.jindexjar = jindexjar
-        rindex = JReverseIndex(self.jindexjar)
-        docs = self.jindexjar.getdocuments(pckmd5s)
-        self.docs = JIndexedDocuments(docs,rindex)
+    def __init__(self,indexjar,pckmd5s):
+        self.indexjar = indexjar
+        rindex = ReverseIndex(self.indexjar)
+        docs = self.indexjar.get_documents(pckmd5s)
+        self.docs = IndexedDocuments(docs,rindex)
         self.pckmd5s = pckmd5s
+        self.postings = None
 
-    def getcounts(self,fs):
-        fsdata = self.jindexjar.getfeaturesetdata(self.pckmd5s,fs)
-        self.datafs = JIndexedData(fsdata)
-        fsvoc = self.jindexjar.getfeaturesetvocabulary(fs)
+    def get_counts(self,fs):
+        postings = self.indexjar.get_all_featureset_postings(self.pckmd5s,fs)
+        self.postings = IndexedPostings(postings)
+        fsvoc = self.indexjar.get_featureset_vocabulary(fs)
         if not fsvoc is None:
-            self.vocabulary = JIndexedVocabulary(fsvoc)
+            self.vocabulary = IndexedVocabulary(fsvoc)
         else:
             print('**Warning**: Featureset ' + fs + ' not present in index jar')
 
-        counts = self.datafs.gettermfrequency()
-        doccount = self.docs.getlength()
+        counts = self.postings.get_term_frequency()
+        doccount = self.docs.get_length()
         result = {}
         for fsix in counts:
-            fsterm = self.vocabulary.getterm(int(fsix))
+            fsterm = self.vocabulary.get_term(int(fsix))
             ivf = math.log10(doccount)
             if counts[fsix] > 0:
                 ivf = math.log10(float(doccount)/float(counts[fsix]))
