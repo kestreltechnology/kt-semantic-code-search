@@ -26,7 +26,9 @@
 # ------------------------------------------------------------------------------
 
 import os
-import subprocess
+
+if os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)),'ConfigLocal.py')):
+    import scs.jbc.util.ConfigLocal as ConfigLocal
 
 class Config():
 
@@ -36,7 +38,7 @@ class Config():
         '''default settings'''
         self.utildir = os.path.dirname(os.path.abspath(__file__))
         self.rootdir = os.path.dirname(self.utildir)
-        self.bindir = os.path.join(self.rootdir,'cmdline')
+        self.bindir = os.path.join(self.rootdir,'binaries')
         self.chjpath = self.bindir
 
         # Update platform as required
@@ -45,17 +47,7 @@ class Config():
         elif os.uname()[0] == 'Darwin':
             self.platform ='mac'
 
-        self.chjcommand = os.path.join(self.chjpath,'chj_features_' + self.platform)
+        self.codehawk = os.path.join(self.chjpath,'chj_features_' + self.platform)
 
-        # JRE path (update for local configuration)
-        if self.platform == 'mac':
-            # self.jrepath = '/Library/Java/JavaVirtualMachines/jdk1.8.0_102.jdk/Contents/Home/jre/lib'
-            self.jrepath = os.path.join(subprocess.check_output('/usr/libexec/java_home'),'jre/lib')
-        else:
-            self.jrepath = '/usr/java/jdk1.8.0_92/jre/lib'
-
-        self.rtjar = os.path.join(self.jrepath,'rt.jar')
-        self.jcejar = os.path.join(self.jrepath,'jce.jar')
-        self.jssejar = os.path.join(self.jrepath,'jsse.jar')
-
-
+        if os.path.isfile(os.path.join(self.utildir,'ConfigLocal.py')):
+            ConfigLocal.getLocals(self)

@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,10 +30,10 @@ import os
 import xml.etree.ElementTree as ET
 
 
-'''
+"""
 Create (if necessary) and return the directory d/pckmd5[0:2]/pckmd5[2:4]/pckmd5[4:32].
-'''
-def getdatadir(d,pckmd5,create=True):
+"""
+def get_postings_dir(d,pckmd5,create=True):
     d1 = pckmd5[0:2]
     d2 = pckmd5[2:4]
     d3 = pckmd5[4:32]
@@ -45,11 +45,14 @@ def getdatadir(d,pckmd5,create=True):
         os.makedirs(fd3)
     return fd3
 
-def getmd5_1111_dir(d,md5,create=True):
-    d1 = md5[0:1]
-    d2 = md5[1:2]
-    d3 = md5[2:3]
-    d4 = md5[3:4]
+"""
+Create (if necessary) and return the directory d/md5[0]/md5[1]/md5[2]/md5[3]
+"""
+def get_md5_1111_dir(d,md5,create=True):
+    d1 = md5[0]
+    d2 = md5[1]
+    d3 = md5[2]
+    d4 = md5[3]
     fd1 = os.path.join(d,d1)
     fd2 = os.path.join(fd1,d2)
     fd3 = os.path.join(fd2,d3)
@@ -58,33 +61,39 @@ def getmd5_1111_dir(d,md5,create=True):
         os.makedirs(fd4)
     return fd4
 
-def getcmd5_filename(d,md5):
-    dir = getmd5_1111_dir(d,md5)
+"""
+Create (if necessary) and return the directory d/md5[0]/md5[1]/md5[2]/md5[3]
+"""
+def get_cmd5_filename(d,md5):
+    dir = get_md5_1111_dir(d,md5)
     return os.path.join(dir,md5 + '.xml')
 
-'''
+"""
 Create (if necessary) the three toplevel directories of the index and the
 administration file in directory d.
-'''
-def createindexdirectories(d):
+"""
+def create_index_directories(d):
     if not os.path.exists(d):
         os.makedirs(d)
     if not os.path.exists(os.path.join(d,'docindex')): os.makedirs(os.path.join(d,'docindex'))
     if not os.path.exists(os.path.join(d,'vocabulary')): os.makedirs(os.path.join(d,'vocabulary'))
-    if not os.path.exists(os.path.join(d,'data')): os.makedirs(os.path.join(d,'data'))
-    adminfile = os.path.join(d,'admin.json')
-    if not os.path.isfile(adminfile):
-        admindict = {}
-        admindict['docoffset'] = 0
-        with open(adminfile,'w') as fp:
-            json.dump(admindict,fp)
+    if not os.path.exists(os.path.join(d,'postings')): os.makedirs(os.path.join(d,'postings'))
+    dcfile = os.path.join(d,'documentcounter.json')
+    if not os.path.isfile(dcfile):
+        dcdict = {}
+        dcdict['docoffset'] = 0
+        with open(dcfile,'w') as fp:
+            json.dump(dcdict,fp)
 
-def createfeaturesdocdirectory(d):
+"""
+Create (if necessary) the features and features/docindex directories
+"""
+def create_features_docindex_directory(d):
     if not os.path.exists(d): os.makedirs(d)
     docindexdir = os.path.join(d,'docindex')
     if not os.path.exists(docindexdir): os.makedirs(docindexdir)
-
-def getindexjarfilename(d):
+     
+def get_indexjar_filename(d):
     parentdir = os.path.dirname(d.rstrip(os.sep))
     indexbasename = os.path.basename(d.rstrip(os.sep))
     jarfilename = indexbasename + '.jar'
@@ -103,7 +112,7 @@ def save_features_jarmanifest(d,ddict):
     with open(filename,'w') as fp:
         json.dump(ddict,fp,indent=3)
 
-def load_features_classmd5index(d):
+def load_features_classmd5_index(d):
     ddict = {}
     filename = os.path.join(d,'features-classmd5s.json')
     if os.path.isfile(filename):
@@ -111,12 +120,12 @@ def load_features_classmd5index(d):
             ddict.update(json.load(fp))
     return ddict
 
-def save_features_classmd5index(d,ddict):
+def save_features_classmd5_index(d,ddict):
     filename = os.path.join(d,'features-classmd5s.json')
     with open(filename,'w') as fp:
         json.dump(ddict,fp,indent=3)
 
-def loadprojectfile(d):
+def load_project_file(d):
     ddict = {}
     filename = os.path.join(os.path.join(d,'docindex'),'projects.json')
     if os.path.isfile(filename):
@@ -124,15 +133,15 @@ def loadprojectfile(d):
             ddict.update(json.load(fp))
     return ddict
 
-def saveprojectfile(d,ddict):
+def save_project_file(d,ddict):
     filename = os.path.join(os.path.join(d,'docindex'),'projects.json')
     with open(filename,'w') as fp:
         json.dump(ddict,fp,indent=3)
     
-'''
+"""
 Load docindex json files.
-'''
-def loaddocindexfile(d,name):
+"""
+def load_docindex_file(d,name):
     ddict = {}
     if d == None: return ddict
     filename = os.path.join(os.path.join(d,'docindex'),name + '.json')
@@ -143,29 +152,33 @@ def loaddocindexfile(d,name):
         print('docindex file ' + filename + ' not found')
     return ddict
 
-def loadsignatureindex(d): return loaddocindexfile(d,'signatures')
+def load_signature_index(d): return load_docindex_file(d,'signatures')
 
-def loadclassmd5index(d): return loaddocindexfile(d,'classmd5s')
+def load_classmd5_index(d): return load_docindex_file(d,'classmd5s')
 
-def loadjarmd5index(d): return loaddocindexfile(d,'jarmd5s')
+def load_jarmd5_index(d): return load_docindex_file(d,'jarmd5s')
 
-def loadpackageindex(d): return loaddocindexfile(d,'packages')
+def load_package_index(d): return load_docindex_file(d,'packages')
 
-def loadclassnameindex(d): return loaddocindexfile(d,'classnames')
+def load_classname_index(d): return load_docindex_file(d,'classnames')
 
-def loadmethodnameindex(d): return loaddocindexfile(d,'methodnames')
+def load_methodname_index(d): return load_docindex_file(d,'methodnames')
 
-def loadclassmd5xref(d): return loaddocindexfile(d,'classmd5xref')
+def load_classmd5_xref(d): return load_docindex_file(d,'classmd5xref')
 
-def loadjarmd5xref(d): return loaddocindexfile(d,'jarmd5xref')
+def load_jarmd5_xref(d): return load_docindex_file(d,'jarmd5xref')
 
-def loadjarnames(d): return loaddocindexfile(d,'jarnames')
+def load_jarnames(d): return load_docindex_file(d,'jarnames')
 
-def loadjarmanifest(d): return loaddocindexfile(d,'jarmanifest')
+def load_jar_manifest(d): return load_docindex_file(d,'jarmanifest')
 
-def loadpackagedigest(d): return loaddocindexfile(d,'pckdigest')
+def load_package_digest(d): return load_docindex_file(d,'pckdigest')
 
-def savedocindexfile(d,name,ddict):
+
+"""
+save docindex json files
+"""
+def save_docindex_file(d,name,ddict):
     if not ddict is None:
         filename = os.path.join(os.path.join(d,'docindex'),name + '.json')
         with open(filename,'w') as fp:
@@ -173,29 +186,29 @@ def savedocindexfile(d,name,ddict):
     else:
         print('Docindex file for ' + name + ' not saved: found None')
 
-def savesignatureindex(d,ddict): savedocindexfile(d,'signatures',ddict)
+def save_signature_index(d,ddict): save_docindex_file(d,'signatures',ddict)
 
-def saveclassmd5index(d,ddict): savedocindexfile(d,'classmd5s',ddict)
+def save_classmd5_index(d,ddict): save_docindex_file(d,'classmd5s',ddict)
 
-def savejarmd5index(d,ddict): savedocindexfile(d,'jarmd5s',ddict)
+def save_jarmd5_index(d,ddict): save_docindex_file(d,'jarmd5s',ddict)
 
-def savepackageindex(d,ddict): savedocindexfile(d,'packages',ddict)
+def save_package_index(d,ddict): save_docindex_file(d,'packages',ddict)
 
-def saveclassnameindex(d,ddict): savedocindexfile(d,'classnames',ddict)
+def save_classname_index(d,ddict): save_docindex_file(d,'classnames',ddict)
 
-def savemethodnameindex(d,ddict): savedocindexfile(d,'methodnames',ddict)
+def save_methodname_index(d,ddict): save_docindex_file(d,'methodnames',ddict)
 
-def saveclassmd5xref(d,ddict): savedocindexfile(d,'classmd5xref',ddict)
+def save_classmd5_xref(d,ddict): save_docindex_file(d,'classmd5xref',ddict)
 
-def savejarmd5xref(d,ddict): savedocindexfile(d,'jarmd5xref',ddict)
+def save_jarmd5_xref(d,ddict): save_docindex_file(d,'jarmd5xref',ddict)
 
-def savejarnames(d,ddict): savedocindexfile(d,'jarnames',ddict)
+def save_jarnames(d,ddict): save_docindex_file(d,'jarnames',ddict)
 
-def savejarmanifest(d,ddict): savedocindexfile(d,'jarmanifest',ddict)
+def save_jarmanifest(d,ddict): save_docindex_file(d,'jarmanifest',ddict)
 
-def savepackagedigest(d,ddict): return savedocindexfile(d,'pckdigest',ddict)
+def save_package_digest(d,ddict): return save_docindex_file(d,'pckdigest',ddict)
 
-def loadvocabulary(d):
+def load_vocabulary(d):
     ddict = {}
     if d == None: return ddict
     fdir = os.path.join(d,'vocabulary')
@@ -207,32 +220,40 @@ def loadvocabulary(d):
                 ddict[featuresetname] = json.load(fp)
     return ddict
 
-def savevocabulary(d,ddict):
+def save_vocabulary(d,ddict):
     fdir = os.path.join(d,'vocabulary')
     if not os.path.exists(fdir):
         os.makedirs(fdir)
-    print('Saving vocabulary files ...')
     for fs in ddict:
         filename = os.path.join(fdir,fs + '.json')
         with open(filename,'w') as fp:
             json.dump(ddict[fs],fp,sort_keys=True,indent=3)
 
-def loaddocoffset(d):
+def load_docoffset(d):
     if d == None: return 0
-    adminfile = os.path.join(d,'admin.json')
-    if os.path.isfile(adminfile):
-        with open(adminfile,'r') as fp:
+    dcfile = os.path.join(d,'documentcounter.json')
+    if os.path.isfile(dcfile):
+        with open(dcfile,'r') as fp:
             d = json.load(fp)
         if 'docoffset' in d:
             return int(d['docoffset'])
         else:
-            print('Admin file is corrupted')
+            print('Documentcounter file is corrupted')
     else:
-        print('Admin file not found')
+        print('Documentcounter file not found')
+        return 0
 
-def loaddocumentsfile(d,pckmd5):
+def save_docoffset(d,c):
+    dcfile = os.path.join(d,'documentcounter.json')
+    dcdict = {}
+    dcdict['docoffset'] = c
+    with open(dcfile,'w') as fp:
+        json.dump(dcdict,fp)
+    
+
+def load_documents_file(d,pckmd5):
     if d == None: return {}
-    fdir = getdatadir(os.path.join(d,'data'),pckmd5)
+    fdir = get_postings_dir(os.path.join(d,'postings'),pckmd5)
     filename = os.path.join(fdir,pckmd5 + '_documents.json')
     if os.path.isfile(filename):
         with open(filename,'r') as fp:
@@ -241,10 +262,10 @@ def loaddocumentsfile(d,pckmd5):
         return {}
 
 
-def loaddatafiles(d,pckmd5):
+def load_postings_files(d,pckmd5):
     ddict = {}
     if d == None: return ddict
-    fdir = getdatadir(os.path.join(d,'data'),pckmd5)
+    fdir = get_postings_dir(os.path.join(d,'postings'),pckmd5)
     if os.path.isdir(fdir):
         files = os.listdir(fdir)
         for f in files:
@@ -256,29 +277,24 @@ def loaddatafiles(d,pckmd5):
     return ddict
     
 
-def savedocumentsfile(d,pckmd5,ddict):
-    fdir = getdatadir(os.path.join(d,'data'), pckmd5)
-    # print('Saving documents file in ' + fdir + ' ...')
+def save_documents_file(d,pckmd5,ddict):
+    fdir = get_postings_dir(os.path.join(d,'postings'), pckmd5)
     filename = os.path.join(fdir,pckmd5 + '_documents.json')
     with open(filename,'w') as fp:
         json.dump(ddict,fp)   
                                             
-def savedatafiles(d,pckmd5,ddict):
-    fdir = getdatadir(os.path.join(d,'data'), pckmd5)
-    # print('Saving data files in ' + fdir + ' ...')
+def save_postings_files(d,pckmd5,ddict):
+    fdir = get_postings_dir(os.path.join(d,'postings'), pckmd5)
     for fs in ddict:
         filename = os.path.join(fdir,pckmd5 + '_' + fs + '.json')
         with open(filename,'w') as fp:
             json.dump(ddict[fs],fp)
 
-def getxrootnode(filename):
-    return ET.parse(filename)
-
-def getxnode(filename,nodename):
+def get_xnode(filename,nodename):
     xroot = ET.parse(filename)
     if not xroot is None:
         return xroot.find(nodename)
 
 def load_features_file(featurespath,cmd5):
-    filename = getcmd5_filename(featurespath,cmd5)
-    return getxnode(filename,'class')
+    filename = get_cmd5_filename(featurespath,cmd5)
+    return get_xnode(filename,'class')
