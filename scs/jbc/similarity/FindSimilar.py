@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -34,98 +34,98 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy import mat
 
-import jbcmlscs.util.fileutil as UF
+import scs.jbc.util.fileutil as UF
 
-from jbcmlscs.similarity.JPattern import JPattern
-from jbcmlscs.retrieval.JIndexedData import JIndexedData
-from jbcmlscs.retrieval.JIndexedDocuments import JIndexedDocuments
-from jbcmlscs.retrieval.JIndexedVocabulary import JIndexedVocabulary
-from jbcmlscs.retrieval.JReverseIndex import JReverseIndex
+from scs.jbc.similarity.Pattern import Pattern
+from scs.jbc.retrieval.IndexedPostings import IndexedPostings
+from scs.jbc.retrieval.IndexedDocuments import IndexedDocuments
+from scs.jbc.retrieval.IndexedVocabulary import IndexedVocabulary
+from scs.jbc.retrieval.ReverseIndex import ReverseIndex
 
-class JFindSimilar():
+class FindSimilar():
 
-    def __init__(self,jindexjar,jpattern,pckmd5s):
-        self.jindexjar = jindexjar
-        self.jpattern = jpattern
+    def __init__(self,indexjar,pattern,pckmd5s):
+        self.indexjar = indexjar
+        self.pattern = pattern
         self.pckmd5s = pckmd5s                  # (pckix,pckmd5) list
-        self.featuresets = self.jpattern.getfeaturesets()
-        reverseindex = JReverseIndex(self.jindexjar)
-        self.docs = JIndexedDocuments(jindexjar.getdocuments(pckmd5s),reverseindex)
-        self.data = {}              # fs -> doc-ix -> term-ix -> freq
-        self.vocabulary = {}        # fs -> term -> term-ix
-        self.loaded = 0             # number of data files loaded
-        self.notloaded = 0          # number of data files not loaded
+        self.featuresets = self.pattern.get_featuresets()
+        reverseindex = ReverseIndex(self.indexjar)
+        self.docs = IndexedDocuments(indexjar.get_documents(pckmd5s),reverseindex)
+        self.postings = {}              # fs -> doc-ix -> term-ix -> freq
+        self.vocabulary = {}            # fs -> term -> term-ix
+        self.loaded = 0                 # number of data files loaded
+        self.notloaded = 0              # number of data files not loaded
         for fs in self.featuresets:
-            fsvoc = self.jindexjar.getfeaturesetvocabulary(fs)
+            fsvoc = self.indexjar.get_featureset_vocabulary(fs)
             if not fsvoc is None:
-                self.vocabulary[fs] = JIndexedVocabulary(fsvoc)
+                self.vocabulary[fs] = IndexedVocabulary(fsvoc)
             else:
                 print('**Warning**: Featureset ' + fs + ' not present in index jar')
-            featureterms = self.jpattern.get_feature_terms(fs,self.vocabulary[fs])
-            (fsloaded,fsnotloaded,fsdata) = self.jindexjar.getfeaturesetdata(pckmd5s,fs,featureterms)
+            featureterms = self.pattern.get_feature_terms(fs,self.vocabulary[fs])
+            (fsloaded,fsnotloaded,fspostings) = self.indexjar.get_featureset_postings(pckmd5s,fs,featureterms)
             self.loaded += fsloaded
             self.notloaded += fsnotloaded
-            self.data[fs] = JIndexedData(fsdata)
+            self.postings[fs] = IndexedPostings(fspostings)
         self.weightings = {}
         self.similarity = {}
-        print('Data files loaded/not loaded: ' + str(self.loaded) + '/' + str(self.notloaded)
+        print('Postings files loaded/not loaded: ' + str(self.loaded) + '/' + str(self.notloaded)
                   + ' (' + '%5.1f' % ((float(self.loaded)*100.0/float(self.loaded + self.notloaded)))
                   + '% loaded)')
 
     def search(self):
-        doccount = self.docs.getlength()
-        termcount = self.jpattern.gettermcount()
+        doccount = self.docs.get_length()
+        termcount = self.pattern.get_term_count()
         print('Creating a ' + str(doccount) + ' by ' + str(termcount) + ' matrix')
-        xpattern = self.jpattern.getexpandedpattern(self.vocabulary)
+        xpattern = self.pattern.get_expanded_pattern(self.vocabulary)
         self.dokmatrix = dok_matrix((doccount,termcount),dtype=int)
-        self.docids = list(self.docs.getdocids())
+        self.docids = list(self.docs.get_doc_ids())
         for dx in range(doccount):
             tx = 0
             for fs in sorted(xpattern):
                 for termix in xpattern[fs]:
-                    if self.data[fs].hasterm(self.docids[dx],termix):
+                    if self.postings[fs].has_term(self.docids[dx],termix):
                         self.dokmatrix[dx,tx] = 1
-                        self.data[fs].useterm(self.docids[dx],termix)
+                        self.postings[fs].use_term(self.docids[dx],termix)
                     tx += 1
         tfidf = TfidfTransformer(norm='l2')
         tfidf.fit(self.dokmatrix)
-        self.setweightings(xpattern,tfidf.idf_)
+        self.set_weightings(xpattern,tfidf.idf_)
         self.similarity = cosine_similarity(mat([tfidf.idf_]),self.dokmatrix)
 
-    def setweightings(self,xpattern,idfvector):
+    def set_weightings(self,xpattern,idfvector):
         index = 0
         for fs in sorted(xpattern):
             for termix in xpattern[fs]:
-                t = self.vocabulary[fs].getterm(termix)
+                t = self.vocabulary[fs].get_term(termix)
                 self.weightings[index] = (idfvector[index],t,fs)
                 index += 1
 
-    def getweightings(self): return self.weightings
+    def get_weightings(self): return self.weightings
 
-    def getsimilarityresults(self,count=50,cutoff=0.1,docformat='full'):
+    def get_similarity_results(self,count=50,cutoff=0.1,docformat='full'):
         qresults = []
-        for i in range(self.docs.getlength()):
+        for i in range(self.docs.get_length()):
             if self.similarity[0,i] > cutoff:
                 qresults.append((i,self.similarity[0,i]))
         qresults = sorted(qresults,key=lambda x:x[1],reverse=True)
         results = []
         for i in range(min(len(qresults),count)):
             docix = self.docids[qresults[i][0]]
-            prdoc = self.docs.getdocumentname(docix,docformat)
-            jjdoc = ' (' + ','.join(self.docs.getjarnames(docix)) + ')'
+            prdoc = self.docs.get_document_name(docix,docformat)
+            jjdoc = ' (' + ','.join(self.docs.get_jarnames(docix)) + ')'
             results.append((qresults[i][1],prdoc + jjdoc))
         return results
 
-    def getsimilarityresults_structured(self,count=50,cutoff=0.1):
+    def get_similarity_results_structured(self,count=50,cutoff=0.1):
         qresults = []
-        for i in range(self.docs.getlength()):
+        for i in range(self.docs.get_length()):
             if self.similarity[0,i] > cutoff:
                 qresults.append((i,self.similarity[0,i]))
         qresults = sorted(qresults,key=lambda x:x[1],reverse=True)
         results = []
         for i in range(min(len(qresults),count)):
             docix = self.docids[qresults[i][0]]
-            (package,classname,methodname,signature,jarnames) = self.docs.getdocument(docix)
+            (package,classname,methodname,signature,jarnames) = self.docs.get_document(docix)
             results.append((qresults[i][1],package,classname,methodname,signature,jarnames))
         return results
 

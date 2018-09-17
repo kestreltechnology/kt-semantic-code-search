@@ -27,16 +27,16 @@
 
 import json
 
-class JPattern:
+class Pattern():
 
     def __init__(self,fname):
         with open(fname,'r') as fp:
             self.pattern = json.load(fp)
 
-    def getfeaturesets(self):
+    def get_featuresets(self):
         return self.pattern.keys()
 
-    def getexpandedpattern(self,vocabulary): 
+    def get_expanded_pattern(self,vocabulary): 
         xpattern = {}
         for fs in sorted(self.pattern):
             xpattern[fs] = []
@@ -48,7 +48,7 @@ class JPattern:
         self.expandedpattern = xpattern
         return xpattern
 
-    def gettermcount(self):
+    def get_term_count(self):
         count = 0
         for fs in self.pattern:
             for term in self.pattern[fs]:

@@ -27,27 +27,27 @@
 
 import json
 
-class JSearchTerms:
+class SearchTerms():
 
     def __init__(self,pattern):
         self.pattern = pattern
 
-    def getfeaturesets(self):
+    def get_featuresets(self):
         return self.pattern.keys()
 
-    def getexpandedpattern(self,vocabulary): 
+    def get_expanded_pattern(self,vocabulary): 
         xpattern = {}
         for fs in sorted(self.pattern):
             xpattern[fs] = []
             for t in self.pattern[fs]:
                 if fs in vocabulary:
-                    tx = vocabulary[fs].gettermix(t)
+                    tx = vocabulary[fs].get_termix(t)
                     for i in range(self.pattern[fs][t]):
                         xpattern[fs].append(tx)
         self.expandedpattern = xpattern
         return xpattern
 
-    def gettermcount(self):
+    def get_term_count(self):
         count = 0
         for fs in self.pattern:
             for term in self.pattern[fs]:
@@ -58,7 +58,7 @@ class JSearchTerms:
     def get_feature_terms(self,fs,vocabulary):
         result = set([])
         for t in self.pattern[fs]:
-            tx = vocabulary.gettermix(t)
+            tx = vocabulary.get_termix(t)
             result.add(tx)
         return result
 
