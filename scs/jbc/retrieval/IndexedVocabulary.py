@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,28 +25,20 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
+def invmap(d): return { k: v for v, k in d.items() }
 
-class JIndexedData:
+class IndexedVocabulary():
 
-    def __init__(self,data):
-        self.data = data        # doc-ix -> term-ix -> freq
+    def __init__(self,vocabulary):
+        self.terms = vocabulary
+        self.invterms = invmap(self.terms)
 
-    def hasterm(self,docix,termix):
-        docix = str(docix)
-        termix = str(termix)
-        return (docix in self.data and 
-                termix in self.data[docix] and self.data[docix][termix] > 0)
+    def get_termix(self,term):
+        if term in self.terms:
+            return self.terms[term]
+        else:
+            termix = self.terms.setdefault(term,len(self.terms))
+            self.invterms = invmap(self.terms)
+            return termix
 
-    def useterm(self,docix,termix):
-        docix = str(docix)
-        termix = str(termix)
-        self.data[docix][termix] -= 1
-
-    def gettermfrequency(self):
-        result = {}
-        for docix in self.data:
-            for termix in self.data[docix]:
-                if not termix in result: result[termix] = 0
-                result[termix] += self.data[docix][termix]
-        return result
-        
+    def get_term(self,termix): return self.invterms[termix]

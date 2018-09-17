@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,40 +29,40 @@
 
 def invmap(d): return dict(zip(d.values(), d.keys()))
 
-class JReverseIndex():
+class ReverseIndex():
 
     def __init__(self,jindexjar):
         self.jindexjar = jindexjar
-        self.packages = invmap(jindexjar.getpackageindex())
-        self.classmd5s = invmap(jindexjar.getmd5classindex())
-        self.classnames = invmap(jindexjar.getclassnameindex())
-        self.methodnames = invmap(jindexjar.getmethodnameindex())
-        self.signatures = invmap(jindexjar.getsignatureindex())
-        self.classmd5xref = jindexjar.getclassmd5xref()
-        self.jarnames = jindexjar.getjarnames()
+        self.packages = invmap(jindexjar.get_package_index())
+        self.classmd5s = invmap(jindexjar.get_classmd5_index())
+        self.classnames = invmap(jindexjar.get_classname_index())
+        self.methodnames = invmap(jindexjar.get_methodname_index())
+        self.signatures = invmap(jindexjar.get_signature_index())
+        self.classmd5xref = jindexjar.get_classmd5_xref()
+        self.jarnames = jindexjar.get_jarnames()
 
-    def getpackage(self,pckix):
+    def get_package(self,pckix):
         if pckix in self.packages: return self.packages[pckix]
         print('Package-ix ' + str(pckix) + ' not found in index jarfile')
 
-    def getclassname(self,cnix):
+    def get_classname(self,cnix):
         if cnix in self.classnames: return self.classnames[cnix]
         print('Classname-ix ' + str(cnix) + ' not found in index jarfile')
 
-    def getmethodname(self,mnix):
+    def get_methodname(self,mnix):
         if mnix in self.methodnames: return self.methodnames[mnix]
         print('Methodname-ix ' + str(mnix) + ' not found in index jarfile')
 
-    def getsignature(self,sigix):
+    def get_signature(self,sigix):
         if sigix in self.signatures: return self.signatures[sigix]
         print('Signature-ix ' + str(sigix) + ' not found in index jarfile')
 
-    def getpackageclassix(self,cmd5ix):
+    def get_package_classix(self,cmd5ix):
         if str(cmd5ix) in self.classmd5xref: return self.classmd5xref[str(cmd5ix)]
         print('Class-md5-ix ' + str(cmd5ix) + ' not found in index jarfile')
 
-    def getpackageclass(self,cmd5ix):
-        (pckix,cnix) = self.getpackageclassix(cmd5ix)
-        return (self.getpackage(pckix), self.getclassname(cnix))
+    def get_package_class(self,cmd5ix):
+        (pckix,cnix) = self.get_package_classix(cmd5ix)
+        return (self.get_package(pckix), self.get_classname(cnix))
 
-    def getjarnames(self,cmd5ix): return self.jindexjar.getjarsforclassix(cmd5ix)
+    def get_jarnames(self,cmd5ix): return self.jindexjar.get_jars_for_classix(cmd5ix)

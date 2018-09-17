@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,31 +26,31 @@
 # ------------------------------------------------------------------------------
 
 
-class JIndexedDocuments():
+class IndexedDocuments():
 
     def __init__(self,docs,rindex):
         self.docs = docs          # doc-ix -> (cmd5-ix,mn-ix,sig-ix)
-        self.rindex = rindex      # JReverseIndex
+        self.rindex = rindex      # ReverseIndex
 
-    def getlength(self): return len(self.docs)
+    def get_length(self): return len(self.docs)
 
-    def getdocids(self): return self.docs.keys()
+    def get_doc_ids(self): return self.docs.keys()
 
-    def getcmd5ix(self,docix):
+    def get_cmd5ix(self,docix):
         if docix in self.docs:
             return self.docs[docix][0]
 
-    def getdocument(self,docix):
+    def get_document(self,docix):
         if docix in self.docs:
             (cmd5ix,mnix,sigix) = self.docs[docix]
-            jarnames = self.rindex.getjarnames(cmd5ix)
-            (package,classname) = self.rindex.getpackageclass(cmd5ix)
-            methodname = self.rindex.getmethodname(mnix)
-            signature = self.rindex.getsignature(sigix)
+            jarnames = self.rindex.get_jarnames(cmd5ix)
+            (package,classname) = self.rindex.get_package_class(cmd5ix)
+            methodname = self.rindex.get_methodname(mnix)
+            signature = self.rindex.get_signature(sigix)
             return (package,classname,methodname,signature,jarnames)
 
-    def getdocumentname(self,docix,docformat='full'):
-        doc = self.getdocument(docix)
+    def get_document_name(self,docix,docformat='full'):
+        doc = self.get_document(docix)
         if docformat == 'full':
             return (doc[0] + '.' + doc[1] + '.' + doc[2] + doc[3])
         if docformat == 'columns':
@@ -63,8 +63,8 @@ class JIndexedDocuments():
         if docformat == 'classmethodsig':
             return (doc[1] + '.' + doc[2] + doc[3])
 
-    def getmethodname(self,docix):
+    def get_methodname(self,docix):
         return self.getdocument(docix)[2]
 
-    def getjarnames(self,docix):
-        return self.getdocument(docix)[4]
+    def get_jarnames(self,docix):
+        return self.get_document(docix)[4]

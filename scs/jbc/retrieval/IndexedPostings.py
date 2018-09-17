@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,22 +25,28 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import json
 
-def invmap(d): return { k: v for v, k in d.items() }
+class IndexedPostings():
 
-class JIndexedVocabulary:
+    def __init__(self,postings):
+        self.postings = postings        # doc-ix -> term-ix -> freq
 
-    def __init__(self,vocabulary):
-        self.terms = vocabulary
-        self.invterms = invmap(self.terms)
+    def has_term(self,docix,termix):
+        docix = str(docix)
+        termix = str(termix)
+        return (docix in self.postings and 
+                termix in self.postings[docix] and self.postings[docix][termix] > 0)
 
-    def gettermix(self,term):
-        if term in self.terms:
-            return self.terms[term]
-        else:
-            termix = self.terms.setdefault(term,len(self.terms))
-            self.invterms = invmap(self.terms)
-            return termix
+    def use_term(self,docix,termix):
+        docix = str(docix)
+        termix = str(termix)
+        self.postings[docix][termix] -= 1
 
-    def getterm(self,termix): return self.invterms[termix]
+    def get_term_frequency(self):
+        result = {}
+        for docix in self.postings:
+            for termix in self.postings[docix]:
+                if not termix in result: result[termix] = 0
+                result[termix] += self.postings[docix][termix]
+        return result
+        
