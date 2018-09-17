@@ -31,19 +31,10 @@ import time
 
 from contextlib import contextmanager
 
-import jbcmlscs.util.fileutil as UF
+import scs.jbc.util.fileutil as UF
 
-from jbcmlscs.features.JClassFeatures import JClassFeatures
-from jbcmlscs.index.JClassMd5Index import JClassMd5Index
-from jbcmlscs.index.JJarMd5Index import JJarMd5Index
-from jbcmlscs.index.JJarManifest import JJarManifest
-from jbcmlscs.index.JJarNames import JJarNames
-from jbcmlscs.index.JClassNameIndex import JClassNameIndex
-from jbcmlscs.index.JPackageIndex import JPackageIndex
-from jbcmlscs.index.JClassMd5Xref import JClassMd5Xref
-
-
-from jbcmlscs.ifeatures.IClassFeatures import IClassFeatures
+from scs.jbc.features.ClassFeatures import ClassFeatures
+from scs.jbc.index.FeaturesAdministrator import FeaturesAdministrator
 
 @contextmanager
 def timing():
@@ -62,45 +53,40 @@ def parse():
 if __name__ == '__main__':
 
     args = parse()
-    fpath = args.featurespath
-
-    classmd5index = JClassMd5Index(fpath)             # cmd5 -> cmd5 index
-    jarmd5index = JJarMd5Index(fpath)                 # jmd5 -> jmd5 index
-    packageindex = JPackageIndex(fpath)               # package name ->  pck index
-    classnameindex = JClassNameIndex(fpath)           # class name -> class name index
-    classmd5xref = JClassMd5Xref(fpath)               # cmd5 -> (pck index, cnix)
-    jarmanifest = JJarManifest(fpath)                   # jmd5 -> pckix -> cmd5ix
+    admin = FeaturesAdministrator(args.featurespath)
 
     names = args.classname.split('.')
     package = '.'.join(names[:-1])
     cn = names[-1]
-    pckix = packageindex.getpckix(package)
+    pckix = admin.packageindex.get_pckix(package)
     if pckix is None:
         print('package ' + package + ' not found')
         exit(-1)
-    cnix = classnameindex.getcnix(cn)
+    cnix = admin.classnameindex.get_cnix(cn)
     if cnix is None:
         print('classname ' + cn + ' not found')
         exit(-1)
 
-    cmd5ix = classmd5xref.getcmd5ix(pckix,cnix)
+    cmd5ix = admin.classmd5xref.get_cmd5ix(pckix,cnix)
     if cmd5ix is None:
         print('Error: no class found for ' + args.classname)
         exit(-1)
 
-    cmd5 = classmd5index.getcmd5(cmd5ix)
+    cmd5 = admin.classmd5index.get_cmd5(cmd5ix)
     if cmd5 is None:
         print('Error: no cmd5 found for ' + args.classname + ' (cmd5ix = ' + str(cmd5ix))
         exit(-1)
 
     xclass = UF.load_features_file(args.featurespath,cmd5)
-    iclass = IClassFeatures(xclass)
-    print(iclass.package + '.' + iclass.name)
-    for m in iclass.methods:
+    fclass = ClassFeatures(xclass)
+    print(fclass.package + '.' + fclass.name)
+    for m in fclass.methods:
         if m.name == args.methodname or args.methodname == 'all':
             maxdepth = m.cfg.max_depth()
-            print('\n  ' + m.name + ' (' + str(m.instrs) + ')')
+            print('\n  ' + m.name + ' (' + str(m.instrs) + ')'
+                      + ' (' + cmd5 + ')')
             print('   max depth: ' + str(maxdepth))
+            if m.obsolete: print('   obsolete')
             for pc in sorted(m.features):
                 print('     ' + str(pc).rjust(3) + '  '
                         + str(m.levels(pc)).rjust(maxdepth) + '  ' + str(m.features[pc]))

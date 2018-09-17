@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,24 +26,21 @@
 # ------------------------------------------------------------------------------
 
 import argparse
-import hashlib
-import json
 import os
 import subprocess
 import time
 
 from contextlib import contextmanager
 
-from jbcmlscs.retrieval.JIndexJar import JIndexJar
-from jbcmlscs.similarity.JPattern import JPattern
-from jbcmlscs.similarity.JFindSimilar import JFindSimilar
+from scs.jbc.stats.FeatureStats import FeatureStats
+from scs.jbc.retrieval.IndexJar import IndexJar
 
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('indexedfeaturesjar',help='indexedcorpus jarfile')
-    parser.add_argument('pattern',help='json file with feature patterns')
-    parser.add_argument('--packages',nargs='*',
-                        help='restrict query to the class files with these package names')
+    parser.add_argument('fs',help='feature of interest')
+    parser.add_argument('--packages',nargs='*',default=[],
+                        help='only include counts from these packages')
     args = parser.parse_args()
     return args
 
@@ -58,40 +55,37 @@ if __name__ == '__main__':
 
     args = parse()
     with timing():
-        print('\nLoading the corpus ...')
-        jindexjar = JIndexJar(args.indexedfeaturesjar)
-        pcks = jindexjar.getallpckmd5s(args.packages)
-        jpattern = JPattern(args.pattern)
-        jquery = JFindSimilar(jindexjar,jpattern,pcks)
-    with timing():
-        print('\n\nConstructing the query matrices ...')
-        jquery.search()
-    weightings = jquery.getweightings()
-    similarityresults = jquery.getsimilarityresults_structured()
-    print('\n\nTerm weights based on their prevalence in the corpus:')
+        print('\nLoading the indexed features ...')
+        indexjar = IndexJar(args.indexedfeaturesjar)
+        pckmd5s = [ hashlib.md5(p).hexdigest() for p in args.packages ]
+        if not pckmd5s:
+            pckmd5s = indexjar.get_all_pckmd5s()
+        stats = FeatureStats(indexjar,pckmd5s)
+        counts = stats.get_counts(args.fs)
+        print('freqency   term')
+        print('-' * 50)
+        for t in sorted(counts,key=lambda t:counts[t],reverse=True):
+            #if counts[t][0] > 2:
+                print(str(counts[t][0]).rjust(8) + '   ' +
+                    # '{:>.3f}'.format(counts[t][1]).rjust(6) + '  ' +
+                    str(t))
 
-    results = {}
-    results['methods'] = []
-    results['weights'] = []
+        histogram = {}
+        for t in counts:
+            count = counts[t][0]
+            if not count in histogram: histogram[count] = 0
+            histogram[count] += 1
+
+        total = sum( [ histogram[x] for x in histogram ])
+
+        if total > 0:
+            print('\nfrequency    count')
+            print('-' * 50)
+            for t in sorted(histogram):
+                perc = float(histogram[t]) / float(total)
+                print(str(t).rjust(8) + '   ' + str(histogram[t]).rjust(8)
+                          + '   ' + '{:>.3f}'.format(perc).rjust(8))
+            print('-' * 50)
+            print('total'.ljust(8) + '   ' + str(total).rjust(8))
     
-    for r in sorted(weightings):
-        w = weightings[r]
-        weighting = {}
-        weighting['score'] = w[0]
-        weighting['feature'] = w[1]
-        weighting['featureset'] = w[2]
-        results['weights'].append(weighting)
-
-    print('\n\nMost similar methods:')
-    for (r,package,classname,methodname,signature,jarnames) in similarityresults:
-        m = {}
-        m['score'] = r
-        m['package'] = package
-        m['classname'] = classname
-        m['methodname'] = methodname
-        m['signature'] = signature
-        m['jarnames'] = ','.join(jarnames)
-        results['methods'].append(m)
-
-    print(json.dumps(results,indent=4,sort_keys=True))
               

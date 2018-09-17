@@ -33,9 +33,10 @@ import time
 
 from contextlib import contextmanager
 
-from jbcmlscs.retrieval.JIndexJar import JIndexJar
-from jbcmlscs.similarity.JSearchTerms import JSearchTerms
-from jbcmlscs.similarity.JFindSimilar import JFindSimilar
+from scs.jbc.retrieval.IndexJar import IndexJar
+from scs.jbc.similarity.SearchTerms import SearchTerms
+from scs.jbc.similarity.FindSimilar import FindSimilar
+
 
 def parse():
     parser = argparse.ArgumentParser()
@@ -50,6 +51,12 @@ def parse():
     parser.add_argument('--loopconditions',nargs='*',help='conditional statements in a loop')
     parser.add_argument('--signatures',nargs='*',help='method signatures')
     parser.add_argument('--returns',nargs='*',help='return expression')
+    parser.add_argument('--callees',nargs='*',help='callee names')
+    parser.add_argument('--methodnames',nargs='*',help='method names')
+    parser.add_argument('--size',nargs='*',help='size of method (native, small, medium, large')
+    parser.add_argument('--complexity',nargs='*',help='cyclomatic complexity')
+    parser.add_argument('--maxloopdepth',nargs='*',help='maximum loop depth')
+    parser.add_argument('--conditioncount',nargs='*',help='number of branch conditions')
     parser.add_argument('--packages',nargs='*',
                         help='restrict query to the class files with these package names')
     parser.add_argument('--docformat',default='full',
@@ -89,17 +96,29 @@ if __name__ == '__main__':
         pattern['inloop-exprs'] = { t:1 for t in args.loops }
     if not args.signatures is None and len(args.signatures) > 0:
         pattern['signatures'] = { s:1 for s in args.signatures }
+    if not args.callees is None and len(args.callees) > 0:
+        pattern['callees'] = { s:1 for s in args.callees }
+    if not args.methodnames is None and len(args.methodnames) > 0:
+        pattern['methodnames'] = { s:1 for s in args.methodnames }
+    if not args.size is None and len(args.size) > 0:
+        pattern['size'] = { s:1 for s in args.size }
+    if not args.complexity  is None and len(args.complexity) > 0:
+        pattern['cyclomatic-complexity'] = { s:1 for s in args.complexity }
+    if not args.maxloopdepth is None and len(args.maxloopdepth) > 0:
+        pattern['max-loop-depth'] = { s:1 for s in args.maxloopdepth }
+    if not args.conditioncount is None and len(args.conditioncount) > 0:
+        pattern['condition-count'] = { s:1 for s in args.conditioncount }
     with timing():
         print('\nLoading the corpus ...')
-        jindexjar = JIndexJar(args.indexedfeaturesjar)
-        pcks = jindexjar.getallpckmd5s(args.packages)
-        jpattern = JSearchTerms(pattern)
-        jquery = JFindSimilar(jindexjar,jpattern,pcks)
+        indexjar = IndexJar(args.indexedfeaturesjar)
+        pcks = indexjar.get_all_pckmd5s(args.packages)
+        pattern = SearchTerms(pattern)
+        query = FindSimilar(indexjar,pattern,pcks)
     with timing():
         print('\n\nConstructing the query matrices ...')
-        jquery.search()
-    weightings = jquery.getweightings()
-    similarityresults = jquery.getsimilarityresults(docformat=args.docformat)
+        query.search()
+    weightings = query.get_weightings()
+    similarityresults = query.get_similarity_results(docformat=args.docformat)
     print('\n\nTerm weights based on their prevalence in the corpus:')
     for r in sorted(weightings):
         w = weightings[r]
