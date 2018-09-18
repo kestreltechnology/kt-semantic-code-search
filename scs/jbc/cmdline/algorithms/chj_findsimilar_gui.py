@@ -39,6 +39,8 @@ from tkinter import filedialog
  
 from contextlib import contextmanager
 
+import scs.jbc.util.fileutil as UF
+
 from scs.jbc.retrieval.IndexJar import IndexJar
 from scs.jbc.similarity.Pattern import Pattern
 from scs.jbc.similarity.FindSimilar import FindSimilar
@@ -136,10 +138,10 @@ class findSimilar():
         current_tab = self.notebook.select()
         self.notebook.forget(current_tab) 
 
-def load_index(args):
+def load_index(indexedfeaturesjar):
     with timing():
         print('\nLoading the corpus ...')
-        jindexjar = IndexJar(args.indexedfeaturesjar)
+        jindexjar = IndexJar(indexedfeaturesjar)
     return jindexjar
 
 def get_query(jindexjar, packages, pattern):
@@ -186,11 +188,29 @@ def get_results(jquery):
 
 
 if __name__ == '__main__':
-    args = parse()
     
-    jindexjar = load_index(args)
+    args = parse()
+    query = UF.get_algorithms_query(args.pattern)
+    indexedfeatures = UF.get_algorithms_indexedfeatures(args.indexedfeaturesjar)
+
+    if query is None:
+        query = args.pattern
+        if not os.path.isfile(query):
+            print('*' * 80)
+            print('Pattern file ' + query + ' not found')
+            print('*' * 80)            
+            exit(-1)
+    if indexedfeatures is None:
+        indexedfeatures = args.indexedfeatures
+        if not os.path.isfile(indexedfeatures):
+            print('*' * 80)            
+            print('Indexed features jar file ' + indexedfeatures + ' not found')
+            print('*' * 80)            
+            exit(-1)
+    
+    jindexjar = load_index(indexedfeatures)
 
     window = Tk()
-    myapp = findSimilar(window, jindexjar, args.featurespath, args.packages, args.pattern)
+    myapp = findSimilar(window, jindexjar, args.featurespath, args.packages, query)
     window.mainloop()
 
