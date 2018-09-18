@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2016-2017 Kestrel Technology LLC
+# Copyright (c) 2016-2018 Kestrel Technology LLC
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -37,8 +37,10 @@ class Config():
 
         '''default settings'''
         self.utildir = os.path.dirname(os.path.abspath(__file__))
-        self.rootdir = os.path.dirname(self.utildir)
-        self.bindir = os.path.join(self.rootdir,'binaries')
+        self.jbcdir = os.path.dirname(self.utildir)
+        self.scsdir = os.path.dirname(self.jbcdir)
+        self.bindir = os.path.join(self.jbcdir,'binaries')
+        self.datadir = os.path.join(self.scsdir,'jbcdata')
         self.chjpath = self.bindir
 
         # Update platform as required

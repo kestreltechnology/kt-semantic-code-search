@@ -29,6 +29,9 @@ import json
 import os
 import xml.etree.ElementTree as ET
 
+from scs.jbc.util.Config import Config
+
+config = Config()
 
 """
 Create (if necessary) and return the directory d/pckmd5[0:2]/pckmd5[2:4]/pckmd5[4:32].
@@ -298,3 +301,21 @@ def get_xnode(filename,nodename):
 def load_features_file(featurespath,cmd5):
     filename = get_cmd5_filename(featurespath,cmd5)
     return get_xnode(filename,'class')
+
+
+def get_algorithms_dir():
+    return  os.path.join(config.datadir,'algorithms')
+
+def get_algorithms_query_dir():
+    return os.path.join(get_algorithms_dir(),'queries')
+
+def get_algorithms_indexedfeatures_dir():
+    return os.path.join(get_algorithms_dir(),'indexedfeatures')
+
+def get_algorithms_query(q):
+    filename = os.path.join(get_algorithms_query_dir(),q)
+    if os.path.isfile(filename): return filename
+
+def get_algorithms_indexedfeatures(f):
+    filename = os.path.join(get_algorithms_indexedfeatures_dir(),f)
+    if os.path.isfile(filename): return filename
