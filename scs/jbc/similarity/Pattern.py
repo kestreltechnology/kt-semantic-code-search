@@ -42,7 +42,7 @@ class Pattern():
             xpattern[fs] = []
             for t in self.pattern[fs]:
                 if fs in vocabulary:
-                    tx = vocabulary[fs].gettermix(t)
+                    tx = vocabulary[fs].get_termix(t)
                     for i in range(self.pattern[fs][t]):
                         xpattern[fs].append(tx)
         self.expandedpattern = xpattern
@@ -59,7 +59,7 @@ class Pattern():
     def get_feature_terms(self,fs,vocabulary):
         result = set([])
         for t in self.pattern[fs]:
-            tx = vocabulary.gettermix(t)
+            tx = vocabulary.get_termix(t)
             result.add(tx)
         return result
 
