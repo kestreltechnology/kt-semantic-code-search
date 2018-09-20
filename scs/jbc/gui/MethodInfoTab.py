@@ -28,7 +28,7 @@
 from tkinter import ttk
 from tkinter import Text
 from tkinter import Button
-from tkinter import END
+from tkinter import END, RIGHT, LEFT
 
 from scs.jbc.features.ClassFeatures import ClassFeatures
 
@@ -41,6 +41,8 @@ class MethodInfoTab():
 
         self.tab = ttk.Frame(parent)
         self.tab.grid(sticky='news')
+        self.text_widget = Text(self.tab)
+        self.yscrollbar = ttk.Scrollbar(self.tab, orient="vertical", command=self.text_widget.yview)
 
         info = self.process_info(classname, origin)
         if type(info) is str:
@@ -63,27 +65,21 @@ class MethodInfoTab():
                             + str(m.levels(pc)).rjust(maxdepth) + '  ' + str(m.features[pc]))
 
             full_text = '\n'.join(lines)
-            #max_width = max([len(line) for line in lines])
 
-        text_widget = Text(self.tab, width=120, height=40)
-        text_widget.insert(END, full_text)
-        text_widget.grid(row=0, column=0, sticky='nw')
+        self.text_widget.insert(END, full_text)
 
-        yscrollbar = ttk.Scrollbar(self.tab, orient="vertical", command=text_widget.yview)
-        yscrollbar.grid(row=0, column=1, sticky='ns')
-        text_widget.configure(yscrollcommand=yscrollbar.set)
+        self.yscrollbar.grid(row=0, column=1, sticky='ns')
+        self.text_widget.configure(yscrollcommand=self.yscrollbar.set)
 
-        #if max_width > 40:
-        #    xscrollbar = ttk.Scrollbar(self.tab, orient="horizontal", command=text_widget.xview)
-        #    xscrollbar.grid(row=1, column=0, sticky='we')
-        #    text_widget.configure(xscrollcommand=xscrollbar.set)
-
-        self.button1 = Button(self.tab)
-        self.button1.configure(text="Close", background="green")
-        self.button1.grid(column=0, row=2, sticky='nw')
-        self.button1.bind("<Button-1>", self.closeTab)
+        #self.button1 = Button(self.tab)
+        #self.button1.configure(text="Close", background="green")
+        #self.button1.grid(column=0, row=2, sticky='nw')
+        #self.button1.bind("<Button-1>", self.closeTab)
 
         self.myParent.add(self.tab, text=self.make_abbrev_name(classname, methodname))
+
+        self.yscrollbar.pack(fill='y', side=RIGHT)
+        self.text_widget.pack(expand=1, fill='both', side=LEFT)
 
     def closeTab(self, event):
         current_tab = self.myParent.select()
