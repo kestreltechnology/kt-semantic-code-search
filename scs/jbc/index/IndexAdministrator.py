@@ -198,7 +198,9 @@ class IndexAdministrator():
             m.iter(g)
         fclass.iter(f)
 
-    def has_cmd5(self,cmd5): return self.classmd5index.has_cmd5(cmd5)        
+    def has_cmd5(self,cmd5): return self.classmd5index.has_cmd5(cmd5)
+
+    def get_cmd5ix(self,cmd5): return self.classmd5index.get_cmd5ix(cmd5)
 
     def add_class_features(self,classfeatures,jmd5ix,recorder):
         package = classfeatures.package

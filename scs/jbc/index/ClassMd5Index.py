@@ -41,6 +41,8 @@ class ClassMd5Index():
 
     def has_cmd5(self,cmd5): return cmd5 in self.index
 
+    def get_cmd5ix(self,cmd5): return self.index[cmd5]
+
     def add_cmd5(self,cmd5):
         ind = self.index.setdefault(cmd5,len(self.index))        
         return ind

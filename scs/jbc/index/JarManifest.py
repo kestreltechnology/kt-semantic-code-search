@@ -35,28 +35,48 @@ class JarManifest():
 
     def __init__(self,indexpath):
         self.indexpath = indexpath
-        self.xref = UF.load_jar_manifest(self.indexpath)
+        self.xref = UF.load_jar_manifest(self.indexpath) # jmd5ix, pckix are strings
+
+    def file_count(self):
+        return len(self.xref)
+
+    def package_count(self):
+        return sum( [ len(self.xref[f]['packages']) for f in self.xref ])
+
+    def class_count(self):
+        return sum( [ sum( [ len(self.xref[f]['packages'][p])
+                                 for p in self.xref[f]['packages'] ] )
+                                 for f in self.xref ])
 
     def add_xref(self,jmd5ix,pckix,cmd5ix):
+        jmd5ix = str(jmd5ix)
+        pckix = str(pckix)
         if not (pckix in self.xref[jmd5ix]['packages']):
             self.xref[jmd5ix]['packages'][pckix] = []
         if not (cmd5ix in self.xref[jmd5ix]['packages'][pckix]):
             self.xref[jmd5ix]['packages'][pckix].append(cmd5ix)
 
-    def has_jar(self,jmd5ix): return jmd5ix in self.xref
+    def has_jar(self,jmd5ix):
+        jmd5ix = str(jmd5ix)
+        return jmd5ix in self.xref
 
     def get_files(self,jmd5ix):
+        jmd5ix = str(jmd5ix)
         if jmd5ix in self.xref: return self.xref[jmd5ix]['files']
 
     def get_pckixs(self,jmd5ix):
+        jmd5ix = str(jmd5ix)
         if jmd5ix in self.xref: return self.xref[jmd5ix]['packages']
 
     def get_cmd5ixs(self,jmd5ix,pckix):
+        jmd5ix = str(jmd5ix)
+        pckix = str(pckix)
         if jmd5ix in self.xref:
             if pckix in self.xref[jmd5ix]['packages']:
                 return self.xref[jmd5ix]['packages'][pckix]
 
     def add_file(self,jmd5ix,name):
+        jmd5ix = str(jmd5ix)
         if not jmd5ix in self.xref:
             self.xref[jmd5ix] = {}
             self.xref[jmd5ix]['files'] = []
@@ -65,6 +85,7 @@ class JarManifest():
             self.xref[jmd5ix]['files'].append(name)
 
     def get_cmd5ixs(self,jmd5ix):
+        jmd5ix = str(jmd5ix)
         result = []
         if jmd5ix in self.xref:
             for pckix in self.xref[jmd5ix]['packages']:

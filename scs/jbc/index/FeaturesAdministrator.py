@@ -145,8 +145,13 @@ class FeaturesAdministrator():
     are integrated with the existing features.
     arguments:
     -indexadmin: index administrator
-    -classpredicate: ClassPredicate with requirement code elements
-    -recorder: FeaturesRecorder that specifies which features to record
+    -classpredicate: ClassPredicate with requirement code elements (filter)
+    -recorder: FeaturesRecorder that specifies which features to record (visitor)
+
+    fjmd5ix: jar-md5-index on the features side
+    ijmd5ix: jar-md5-index on the index side
+    fcmd5ix: class-md5-index on the features side
+    icmd5ix: class-md5-index on the index side
     """
     def index_features(self,indexadmin,classpredicate,recorder):
         excluded = 0
@@ -162,6 +167,8 @@ class FeaturesAdministrator():
             for fcmd5ix in self.jarmanifest.get_cmd5ixs(fjmd5ix):
                 cmd5 = self.classmd5index.get_cmd5(fcmd5ix)
                 if indexadmin.has_cmd5(cmd5):
+                    # add class to the jar cross reference
+                    icmd5ix = indexadmin.get_cmd5ix(cmd5)
                     indexadmin.jmd5xref.add_xref(ijmd5ix,icmd5ix)
                     continue
                 xclass = UF.load_features_file(self.featurespath,cmd5)
