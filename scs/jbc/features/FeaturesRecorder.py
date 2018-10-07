@@ -27,10 +27,11 @@
 
 class FeaturesRecorder():
 
-    def __init__(self,name,featuresetnames):
+    def __init__(self,name,featuresets):
         self.name = name
         self.results = {}
-        self.featuresetnames = featuresetnames
+        self.featuresets = featuresets
+        self.featuresetnames = sorted(self.featuresets.keys())
         for s in self.featuresetnames:
             self.results[s] = {}
 
