@@ -30,15 +30,40 @@ import os
 import subprocess
 import time
 
+"""
+Prints out:
+(1) a list of all distinct features belonging to the given featureset
+    with the number of times each feature appears in the index;
+(2) a list of different number of occurrences for each frequency, e.g.,
+    the (partial) results:
+    frequency    count
+    --------------------------------------------------
+       1         2142      0.635
+       2          544      0.161
+       3          103      0.031
+       ............
+      -------------------------------------------------
+      total      4492
+    means:
+     2142 distinct features appear only once,
+      544 distinct features appear twice,
+      103 distinct features appear three times, 
+     etc.
+     4492 distinct features in total
+"""
+
 from contextlib import contextmanager
 
 from scs.jbc.stats.FeatureStats import FeatureStats
 from scs.jbc.retrieval.IndexJar import IndexJar
 
+import scs.jbc.cmdline.algorithms.AlgorithmicFeaturesRecorder as AF
+
+
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('indexedfeaturesjar',help='indexedcorpus jarfile')
-    parser.add_argument('fs',help='feature of interest')
+    parser.add_argument('fs',help='feature set of interest')
     parser.add_argument('--packages',nargs='*',default=[],
                         help='only include counts from these packages')
     args = parser.parse_args()
@@ -54,6 +79,16 @@ def timing():
 if __name__ == '__main__':
 
     args = parse()
+
+    if not (args.fs in AF.featuresets):
+        print('*' * 80)
+        print('feature set ' + args.fs + ' not found; feature sets available: ')
+        w = max ( [ len(k) for k in AF.featuresets ]) + 3
+        for (k,v) in AF.featuresets.items():
+            print('  ' + k.ljust(w) + v)
+        print('*' * 80)
+        exit(0)
+        
     with timing():
         print('\nLoading the indexed features ...')
         indexjar = IndexJar(args.indexedfeaturesjar)

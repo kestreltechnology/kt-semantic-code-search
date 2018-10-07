@@ -51,7 +51,7 @@ from scs.jbc.gui.MethodInfoTab import MethodInfoTab
 
 import scs.jbc.cmdline.algorithms.AlgorithmicFeaturesRecorder as R
 
-featuresets = R.featuresets
+featuresets = R.featuresets.keys()
 
 def parse():
     parser = argparse.ArgumentParser()
@@ -70,17 +70,16 @@ def timing():
     print('Completed in ' + str(time.time() - t0) + ' secs')
 
 class findSimilar():
-    def __init__(self, parent, jindexjar, fpath, packages, pattern):
+    def __init__(self, parent, jindexjar, fpath, pattern):
         self.featuresets = featuresets
 
         self.myParent = parent
         self.notebook = ttk.Notebook(self.myParent)
         self.add_menu() 
 
-        self.packages = packages
         self.pattern = pattern
         self.jindexjar = jindexjar
-        self.jquery = get_query(jindexjar, packages, pattern)
+        self.jquery = get_query(jindexjar, pattern)
         self.fpath = fpath
 
         self.tab1 = None
@@ -89,7 +88,13 @@ class findSimilar():
         self.build_tabs(self.jquery)
 
     def build_tabs(self, jquery):
-        results = get_results(jquery) 
+        results = get_results(jquery)
+
+        if results['methods'] is None or len(results['methods']) == 0:
+            print('-' * 80)
+            print('No similar methods found')
+            print('-' * 80)
+            exit(0)
 
         self.tab1 = TermWeightsTab(self.notebook) 
         self.tab2 = SimilarMethodsTab(self.notebook, self.fpath)
@@ -144,10 +149,10 @@ def load_index(indexedfeaturesjar):
         jindexjar = IndexJar(indexedfeaturesjar)
     return jindexjar
 
-def get_query(jindexjar, packages, pattern):
+def get_query(jindexjar, pattern):
     with timing():
         print('\nLoading the corpus ...')
-        pcks = jindexjar.get_all_pckmd5s(packages)
+        pcks = jindexjar.get_all_pckmd5s()
         jpattern = Pattern(pattern)
         jquery = FindSimilar(jindexjar,jpattern,pcks)
     return jquery
@@ -211,6 +216,6 @@ if __name__ == '__main__':
     jindexjar = load_index(indexedfeatures)
 
     window = Tk()
-    myapp = findSimilar(window, jindexjar, args.featurespath, args.packages, query)
+    myapp = findSimilar(window, jindexjar, args.featurespath, query)
     window.mainloop()
 

@@ -27,13 +27,23 @@
 
 from scs.jbc.features.FeaturesRecorder import FeaturesRecorder
 
-featuresets = [
-    'exprs', 'inloop-exprs',
-    'assigns', 'inloop-assigns',
-    'conditions', 'inloop-conditions',
-    'return-exprs', 'inloop-return-exprs',
-    'literals', 'callees','methodnames','size',
-    'max-loop-depth','cyclomatic-complexity', 'condition-count']
+featuresets = {
+    'assigns': 'assignments',
+    'callees': 'names of called methods',
+    'condition_count': 'number of conditions in a method',
+    'conditions': 'branch conditions',
+    'cyclomatic_complexity': 'cyclomatic complexity levels of methods',
+    'exprs': 'expressions',
+    'inloop_assigns': 'assignments that appear in a loop',
+    'inloop_conditions': 'conditions that appear in a loop',
+    'inloop_exprs': 'expressions that appear in a loop',
+    'inloop_return_exprs': 'expressions returned by a method from within a loop',
+    'literals': 'integer/floating point literals',
+    'max_loop_depth': 'maximum loop level nestings of a method',
+    'methodnames': 'names of methods in the index',
+    'return_exprs': 'expressions returned by a method',
+    'sizes': 'method sizes (number of instructions)'
+    }
 
 functionnames_tracked = [
     'mod','div','exp','pow','modpow','moddiv','sin','cos','tan',
@@ -82,7 +92,7 @@ class AlgorithmicFeaturesRecorder(FeaturesRecorder):
         if feature.is_algorithmic() and not feature.get_op().is_comparison_opcode():
             term = self.termstr(feature)
             self.add_term('exprs',term)
-            if context.is_inloop(): self.add_term('inloop-exprs',term)
+            if context.is_inloop(): self.add_term('inloop_exprs',term)
 
     def record_function_call_expr(self,feature,context):
         rvtype = feature.get_cms().get_return_type()
@@ -93,7 +103,7 @@ class AlgorithmicFeaturesRecorder(FeaturesRecorder):
                 term = self.call_termstr(feature)
                 if not term is None:
                     self.add_term('exprs',term)
-                    if context.is_inloop(): self.add_term('inloop-exprs',term)
+                    if context.is_inloop(): self.add_term('inloop_exprs',term)
 
     def record_assignment(self,feature,context):
         if feature.is_algorithmic_feature():
@@ -101,27 +111,27 @@ class AlgorithmicFeaturesRecorder(FeaturesRecorder):
             lhsf = self.lhs_termstr(feature.get_lhs())
             term = lhsf + ' := ' + rhsf
             self.add_term('assigns',term)
-            if context.is_inloop(): self.add_term('inloop-assigns',term)
+            if context.is_inloop(): self.add_term('inloop_assigns',term)
 
     def record_condition(self,feature,context):
         if feature.is_algorithmic_feature():
             term = self.termstr(feature.get_fxpr())
             self.add_term('conditions',term)
-            if context.is_inloop(): self.add_term('inloop-conditions',term)
+            if context.is_inloop(): self.add_term('inloop_conditions',term)
 
     def record_return_stmt(self,feature,context):
         if feature.is_algorithmic_feature():
             term = self.termstr(feature.get_fxpr())
-            self.add_term('return-exprs',term)
-            if context.is_inloop(): self.add_term('inloop-return-exprs',term)
+            self.add_term('return_exprs',term)
+            if context.is_inloop(): self.add_term('inloop_return_exprs',term)
 
     def record_methodname(self,name): self.add_term('methodnames',name)
 
-    def record_size(self,size): self.add_term('size',size)
+    def record_size(self,size): self.add_term('sizes',size)
 
-    def record_max_loop_depth(self,d): self.add_term('max-loop-depth',str(d))
+    def record_max_loop_depth(self,d): self.add_term('max_loop_depth',str(d))
 
-    def record_cyclomatic_complexity(self,c): self.add_term('cyclomatic-complexity',str(c))
+    def record_cyclomatic_complexity(self,c): self.add_term('cyclomatic_complexity',str(c))
 
-    def record_condition_count(self,c): self.add_term('condition-count',str(c))
+    def record_condition_count(self,c): self.add_term('condition_count',str(c))
 

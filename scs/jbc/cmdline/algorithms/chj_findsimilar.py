@@ -36,17 +36,13 @@ from contextlib import contextmanager
 import scs.jbc.util.fileutil as UF
 
 from scs.jbc.retrieval.IndexJar import IndexJar
-from scs.jbc.similarity.SearchTerms import SearchTerms
+from scs.jbc.similarity.Pattern import Pattern
 from scs.jbc.similarity.FindSimilar import FindSimilar
-
-import scs.jbc.cmdline.algorithms.AlgorithmicFeaturesRecorder as AF
-
 
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('indexedfeaturesjar',help='indexedcorpus jarfile')
-    for (k,v) in sorted(AF.featuresets.items()):
-        parser.add_argument('--' + k,nargs='*',help=v)
+    parser.add_argument('pattern',help='json file with feature patterns')
     args = parser.parse_args()
     return args
 
@@ -61,6 +57,8 @@ if __name__ == '__main__':
 
     args = parse()
     indexedfeatures = UF.get_algorithms_indexedfeatures(args.indexedfeaturesjar)
+    query = UF.get_algorithms_query(args.pattern)
+    
     if indexedfeatures is None:
         indexedfeatures = args.indexedfeaturesjar
         if not os.path.isfile(indexedfeatures):
@@ -69,29 +67,53 @@ if __name__ == '__main__':
             print('*' * 80)            
             exit(-1)
 
-    pattern = {}
-    for k in args.__dict__:
-        if k == 'indexedfeaturesjar': continue
-        if args.__dict__[k] is None: continue
-        pattern[k] = { t:1 for t in args.__dict__[k] }
-    
+    if query is None:
+        query = args.pattern
+        if not os.path.isfile(query):
+            print('*' * 80)
+            print('Pattern file ' + query + ' not found')
+            print('\nSome pattern files to try:')
+            for f in UF.get_algorithms_query_examples():
+                print('  ' + f)
+            print('*' * 80)            
+            exit(-1)
+
     with timing():
         print('\nLoading the corpus ...')
-        indexjar = IndexJar(indexedfeatures)
-        pcks = indexjar.get_all_pckmd5s()
-        pattern = SearchTerms(pattern)
-        query = FindSimilar(indexjar,pattern,pcks)
+        jindexjar = IndexJar(indexedfeatures)
+        pcks = jindexjar.get_all_pckmd5s()
+        jpattern = Pattern(query)
+        jquery = FindSimilar(jindexjar,jpattern,pcks)
+        
     with timing():
         print('\n\nConstructing the query matrices ...')
-        query.search()
-    weightings = query.get_weightings()
-    similarityresults = query.get_similarity_results()
+        jquery.search()
+        
+    weightings = jquery.get_weightings()
+    similarityresults = jquery.get_similarity_results_structured()
     print('\n\nTerm weights based on their prevalence in the corpus:')
     for r in sorted(weightings):
         w = weightings[r]
         print('  ' + str(w[0]).ljust(20) + str(w[1]).ljust(20)  + ' (' + w[2] + ')')
 
+    results = {}
+    results['methods'] = []
+    results['weights'] = []
+
     print('\n\nMost similar methods:')
-    for (r,name) in similarityresults:
-        print(str(r) + ': ' + name)
+    for (r,package,classname,methodname,signature,jarnames) in similarityresults:
+        m = {}
+        m['score'] = r
+        m['package'] = package
+        m['classname'] = classname
+        m['methodname'] = methodname
+        m['signature'] = signature
+        m['jarnames'] = ','.join([ os.path.basename(x) for x in jarnames ])
+        results['methods'].append(m)
+
+    for m in sorted(results['methods'],key=lambda m:m['score'],reverse=True):
+        print(str(m['score']).ljust(25) + ': ' + str(m['package'] + '.'
+                      + m['classname'] + '.' + m['methodname']
+                      + m['signature']).ljust(50)
+                      + ' (' + m['jarnames'] + ')')
               
