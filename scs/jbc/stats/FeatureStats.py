@@ -30,7 +30,7 @@ import os
 import json
 import zipfile
 
-import jbcmlscs.jbc.util.fileutil as UF
+import scs.jbc.util.fileutil as UF
 
 from scs.jbc.retrieval.IndexedPostings import IndexedPostings
 from scs.jbc.retrieval.IndexedVocabulary import IndexedVocabulary
