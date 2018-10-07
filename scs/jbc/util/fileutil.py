@@ -309,6 +309,13 @@ def get_algorithms_dir():
 def get_algorithms_query_dir():
     return os.path.join(get_algorithms_dir(),'queries')
 
+def get_algorithms_query_examples():
+    adir = get_algorithms_query_dir()
+    result = []
+    for f in os.listdir(adir):
+        if f.endswith('.json'): result.append(f)
+    return result
+
 def get_algorithms_indexedfeatures_dir():
     return os.path.join(get_algorithms_dir(),'indexedfeatures')
 
