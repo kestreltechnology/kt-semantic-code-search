@@ -28,12 +28,14 @@
 
 class ClassPredicate():
 
-    def __init__(self,strings=[],stringpairs=[],opcodes=False):
+    def __init__(self,strings=[],stringpairs=[],opcodes=False,all=False):
+        self.all = all
         self.strings = strings
         self.stringpairs = stringpairs
         self.opcodes = opcodes
 
     def satisfies(self,cfeatures):
+        if self.all: return True
         if self.opcodes and cfeatures.dictionary.opcode_table.size() > 0:
             return True
         stringtable = cfeatures.dictionary.string_table
@@ -42,4 +44,5 @@ class ClassPredicate():
         for (s1,s2) in self.stringpairs:
             if stringtable.has_string(s1) and stringtable.has_string(s2):
                 return True
+
         
