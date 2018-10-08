@@ -542,6 +542,7 @@ class FTXpr(D.DictionaryRecord):
 
     def get_algorithmic_features(self): return []
 
+    def is_op(self): return False
     def is_comparison_expr(self): return False
     def is_instanceof_expr(self): return False
     def is_field_expr(self): return False
@@ -672,12 +673,6 @@ class FTXConst(FTXpr):
         self.get_constant().record_features(recorder,context)
         recorder.record_const_expr(self,context)
 
-    def record_algorithmic_features(self,d,looplevels):
-        self.get_constant().record_algorithmic_features(d,looplevels)
-
-    def record_db_features(self,d,looplevels):
-        self.get_constant().record_db_features(d,looplevels)
-
     def __str__(self): return str(self.get_constant())
    
 class FTXOp(FTXpr):
@@ -694,6 +689,8 @@ class FTXOp(FTXpr):
                         or (self.get_op().is_unary_test_opcode()
                                 and self.get_args()[0].is_instanceof_expr())
                         or any( [ (not x.is_algorithmic()) for x in self.get_args() ]))
+
+    def is_op(self): return True
 
     def get_op(self): return self.ifd.get_opcode(int(self.args[0]))
 
@@ -732,10 +729,6 @@ class FTXOp(FTXpr):
         if looplevels > 0:
             if not fs in d['inloop-exprs']: d['inloop-exprs'][fs] = 0
             d['inloop-exprs'][fs] += 1
-
-    def record_db_features(self,d,looplevels):
-        for a in self.get_args():
-            a.record_db_features(d,looplevels)
 
     def feature_string(self):
         if self.get_op().is_converter_opcode():
@@ -927,16 +920,6 @@ class FTCondition(FTXFeature):
 
     def get_fxpr(self): return self.ifd.get_fxpr(int(self.args[0]))
 
-    def record_algorithmic_features(self,d,looplevels):
-        if self.is_algorithmic_feature():
-            self.get_fxpr().record_algorithmic_features(d,looplevels)
-            fs = self.get_fxpr().feature_string()
-            if not fs in d['conditions']: d['conditions'][fs] = 0
-            d['conditions'][fs] += 1
-            if looplevels > 0:
-                if not fs in d['inloop-conditions']: d['inloop-conditions'][fs] = 0
-                d['inloop-conditions'][fs] += 1
-
     def record_features(self,recorder,context):
         recorder.record_condition(self,context);
         context.set_condition()
@@ -1019,6 +1002,10 @@ class FTProcedurecall(FTXFeature):
         for a in self.get_args():
             a.record_resource_features(d,looplevels)
 
+    def feature_call_string(self):
+        return (str(self.get_cms().get_method_name()) + '('
+                    + ','.join( [ str(x) for x in self.get_args() ] ) + ')')
+
     def __str__(self):
         return ('P:' + str(self.get_cms()) + '('
                     + ','.join( [ str(x) for x in self.get_args() ] ) + ')')
@@ -1040,12 +1027,6 @@ class FTReturn(FTXFeature):
         context.set_return_stmt()
         if self.has_fxpr():
             self.get_fxpr().record_features(recorder,context)
-
-    def record_db_features(self,d,looplevels):
-        self.get_fxpr().record_db_features(d,looplevels)
-
-    def record_resource_features(self,d,looplevels):
-        self.get_fxpr().record_resource_features(d,looplevels)
 
     def get_fxpr(self):
         if self.has_fxpr():
