@@ -49,6 +49,8 @@ class FeaturesRecorder():
 
     def termstr(self,feature): return str(feature)
 
+    def record_opcode_expr(self,feature,context): pass
+
     def record_constant(self,feature,context): pass
 
     def record_string_constant(self,feature,context): pass
