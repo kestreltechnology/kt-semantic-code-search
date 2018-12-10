@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Python API to access CodeHawk Java Analyzer analysis results
-# Author: Henny Sipma
+# Author: Henny Sipma and Andrew McGraw
 # ------------------------------------------------------------------------------
 # The MIT License (MIT)
 #

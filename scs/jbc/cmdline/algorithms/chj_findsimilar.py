@@ -37,6 +37,7 @@ import scs.jbc.util.fileutil as UF
 
 from scs.jbc.retrieval.IndexJar import IndexJar
 from scs.jbc.similarity.Pattern import Pattern
+from scs.jbc.similarity.SearchTerms import SearchTerms
 from scs.jbc.similarity.FindSimilar import FindSimilar
 
 def parse():
@@ -80,17 +81,18 @@ if __name__ == '__main__':
 
     with timing():
         print('\nLoading the corpus ...')
-        jindexjar = IndexJar(indexedfeatures)
-        pcks = jindexjar.get_all_pckmd5s()
-        jpattern = Pattern(query)
-        jquery = FindSimilar(jindexjar,jpattern,pcks)
+        indexjar = IndexJar(indexedfeatures)
+        pcks = indexjar.get_all_pckmd5s()
+        pattern = Pattern(query)
+        pattern = SearchTerms(pattern.pattern)
+        query = FindSimilar(indexjar,pattern,pcks)
         
     with timing():
         print('\n\nConstructing the query matrices ...')
-        jquery.search()
+        query.search()
         
-    weightings = jquery.get_weightings()
-    similarityresults = jquery.get_similarity_results_structured()
+    weightings = query.get_weightings()
+    similarityresults = query.get_similarity_results_structured()
     print('\n\nTerm weights based on their prevalence in the corpus:')
     for r in sorted(weightings):
         w = weightings[r]

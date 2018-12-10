@@ -54,6 +54,8 @@ Prints out:
 
 from contextlib import contextmanager
 
+import scs.jbc.util.fileutil as UF
+
 from scs.jbc.stats.FeatureStats import FeatureStats
 from scs.jbc.retrieval.IndexJar import IndexJar
 
@@ -79,6 +81,16 @@ def timing():
 if __name__ == '__main__':
 
     args = parse()
+    indexedfeatures = UF.get_algorithms_indexedfeatures(args.indexedfeaturesjar)
+
+    if indexedfeatures is None:
+        indexedfeatures = args.indexedfeaturesjar
+        if not os.path.isfile(indexedfeatures):
+            print('*' * 80)            
+            print('Indexed features jar file ' + indexedfeatures + ' not found')
+            print('*' * 80)            
+            exit(-1)
+
 
     if not (args.fs in AF.featuresets):
         print('*' * 80)
@@ -91,7 +103,7 @@ if __name__ == '__main__':
         
     with timing():
         print('\nLoading the indexed features ...')
-        indexjar = IndexJar(args.indexedfeaturesjar)
+        indexjar = IndexJar(indexedfeatures)
         pckmd5s = [ hashlib.md5(p).hexdigest() for p in args.packages ]
         if not pckmd5s:
             pckmd5s = indexjar.get_all_pckmd5s()
