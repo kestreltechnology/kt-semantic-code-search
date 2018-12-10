@@ -1,6 +1,0 @@
-{
-    "libcalls": {
-	"java.lang.reflect.Method.invoke": 1,
-	"java.lang.reflect.Field.set": 1
-    }
-}
