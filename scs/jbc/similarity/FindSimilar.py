@@ -87,7 +87,7 @@ class FindSimilar():
                         self.dokmatrix[dx,tx] = 1
                         self.postings[fs].use_term(self.docids[dx],termix)
                     tx += 1
-        tfidf = TfidfTransformer(norm='l2')
+        tfidf = TfidfTransformer(norm='l2',smooth_idf=True)
         tfidf.fit(self.dokmatrix)
         self.set_weightings(xpattern,tfidf.idf_)
         self.similarity = cosine_similarity(mat([tfidf.idf_]),self.dokmatrix)

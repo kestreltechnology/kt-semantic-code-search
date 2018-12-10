@@ -1,6 +1,6 @@
 {
    "sizes": {
-      "loops" : 20,
-      "max-depth" : 10
+      "loops" : 30,
+      "max-depth" : 30
    }
 }
