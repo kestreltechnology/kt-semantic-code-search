@@ -1,0 +1,12 @@
+{
+    "inloop_assigns": {
+      "x := (x * x)": 1 ,
+      "x := (x + 1.0)": 1 
+    },
+    "assigns": {
+	"x := 1.0": 1
+    },
+    "signatures" : {
+	"(D)D": 1
+    }
+}     
