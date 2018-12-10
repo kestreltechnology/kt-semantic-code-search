@@ -52,14 +52,14 @@ perform semantic code search on java byte code
   ```
   python chj_findsimilar.py xindexedfeatures_alg.jar dfactorial.json
 
-Loading the corpus ...
-Postings files loaded/not loaded: 216/5613 (  3.7% loaded)
-Completed in 3.007449150085449 secs
+	Loading corpus ...
+	Postings files loaded/not loaded: 216/5613 (  3.7% loaded)
+	Completed in 3.007449150085449 secs
 
 
-Constructing the query matrices ...
-Creating a 531376 by 4 matrix
-Completed in 2.8567280769348145 secs
+	Constructing the query matrices ...
+	Creating a 531376 by 4 matrix
+	Completed in 2.8567280769348145 secs
 
 
 Term weights based on their prevalence in the corpus:
