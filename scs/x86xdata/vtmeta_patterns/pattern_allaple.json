@@ -1,0 +1,25 @@
+{
+    "search-terms": {
+	"named_section_md5s": {
+	    ".tc:11bb19755687dd72da01f9f7428f0e1f": 1,
+	    ".brdata:482f6c87e8e8aafbf331ac0f2eb043f0":  1
+	},
+	"size": {
+	    "57856": 1
+	}
+    },
+    "property-formats": {
+	"publishers": [ "default"],
+	"imported_functions": [ "multiplicity", "default" ],
+	"signers": [ "default"],
+	"counter_signers": [ "default"],
+	"section_names": [ "default"],
+	"detections_stemmed": [ "max:10"],
+	"size": [ "default"],
+	"detectors": [ "group"],
+	"non_detectors": [ "group"],
+	"entry_point": [ "multiplicity", "range"],
+	"trid_stemmed": [ "default"],
+	"detection_rate": [ "range", "histogram" ]
+    }
+}

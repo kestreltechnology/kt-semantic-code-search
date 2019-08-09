@@ -1,0 +1,25 @@
+{
+    "search-terms": {
+	"resource_file_types": {
+	    "MIPSEB-LE COFF executable": 1,
+	    "MIPSEB-LE MIPS-III COFF executable": 1
+	}
+    },
+    "property-formats": {
+	"publishers": [ "default"],
+	"imported_libraries": [ "default" ],
+	"imported_functions": [ "multiplicity", "default" ],
+	"signers": [ "default"],
+	"counter_signers": [ "default"],
+	"signing_date": [ "standard" ],
+	"section_names": [ "default"],
+	"detections_stemmed": [ "max:10"],
+	"size": [ "multiplicity", "range"],
+	"detectors": [ "group"],
+	"non_detectors": [ "group"],
+	"entry_point": [ "multiplicity", "range"],
+	"trid_stemmed": [ "default"],
+	"detection_rate": [ "range", "histogram" ]
+    }
+}
+
