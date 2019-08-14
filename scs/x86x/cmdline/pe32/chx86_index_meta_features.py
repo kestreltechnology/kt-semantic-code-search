@@ -83,7 +83,7 @@ featuresets = [ 'size', 'submission_names', 'tags', 'detection_rate', 'type',
                     'network_dns_ip', 'network_dns_hostname',
                     'network_http_url', 'network_http_method', 'network_http_user_agent',
                     'network_tcp', 'network_udp',
-                    'registry_deleted', 'registry_set' ]
+                    'registry_deleted', 'registry_type', 'registry_val', 'registry_key' ]
 
 
 if __name__ == '__main__':
@@ -95,21 +95,22 @@ if __name__ == '__main__':
     
     for root,dirs, files in os.walk(Config().vtmetadir):
         for name in files:
-            if name.endswith('vtmeta'):
+            if name.endswith('vtmeta') and name.startswith('V'):
                 recorder.reset()
                 filename = os.path.join(root,name)
                 print(filename)
                 with open(filename,'r') as fp:
-                    vtmetadata = json.load(fp)['results']
+                    data = json.load(fp)
+                    vtmetadata = data['results'] if 'results' in data else {}
                 if len(vtmetadata) > 0:
                     try:
                         vtmeta = VTMetaData(vtmetadata)
                         name = vtmeta.sha256[:3] + ':' + name
+                        indexadmin.index_meta_features(name[:-7],[ recorder ],vtmeta)
                     except:
                         print('Problem loading ' + filename)
                         raise
                 else:
-                    print('No meta data found for: ' + key)
+                    print('No meta data found for: ' + filename)
                     vtmeta = None
-                indexadmin.index_meta_features(name[:-7],[ recorder ],vtmeta)
     indexadmin.save_features()

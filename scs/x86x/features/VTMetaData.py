@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2016-2019 Kestrel Technology LLC
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
+# Permission is he/eby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
@@ -39,7 +39,7 @@ class VTMetaBehaviourFileSystem(object):
         self.moveddst = [ f['dst'] for f in self.data['moved'] ]
         self.opened = [ f['path'] for f in self.data['opened'] ]
         self.read = [ f['path'] for f in self.data['read'] ]
-        self.replaced = self.data['replaced']
+        self.replaced = [ f['replaced'] + ':with:' + f['replacement'] for f in self.data['replaced'] ]
         self.written = [ f['path'] for f in self.data['written'] ]
 
 class VTMetaBehaviourMutex(object):
@@ -57,7 +57,7 @@ class VTMetaBehaviourNetwork(object):
         self.dns_hostname = [ f['hostname'] for f in self.data['dns'] ]
         self.http_url = [ f['url'] for f in self.data['http'] ]
         self.http_method = [ f['method'] for f in self.data['http' ] ]
-        self.http_user_agent = [ f['user-agent'] for f in self.data['http'] ]
+        self.http_user_agent = [ str(f['user-agent']) for f in self.data['http'] ]
         self.tcp = self.data['tcp']
         self.udp = self.data['udp']
 
@@ -75,7 +75,10 @@ class VTMetaBehaviourRegistry(object):
     def __init__(self,data):
         self.data = data
         self.deleted = self.data['deleted']
-        self.set = self.data['set']
+        #self.set = self.data['set']
+        self.type = [ f['type'] for f in self.data['set'] ]
+        self.val = [ f['val'] for f in self.data['set'] ]
+        self.key = [ f['key'] for f in self.data['set'] ]
 
 class VTMetaBehaviourService(object):
 
@@ -658,9 +661,19 @@ class VTMetaData(object):
             return self.get_behaviour().registry.deleted
         return []
 
-    def get_registry_set(self):
+    def get_registry_type(self):
         if self.has_behaviour():
-            return self.get_behaviour().registry.set
+            return self.get_behaviour().registry.type
+        return []
+
+    def get_registry_val(self):
+        if self.has_behaviour():
+            return self.get_behaviour().registry.val
+        return []
+
+    def get_registry_key(self):
+        if self.has_behaviour():
+            return self.get_behaviour().registry.key
         return []
 
     def _initialize(self):
