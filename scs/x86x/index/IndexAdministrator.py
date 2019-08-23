@@ -53,6 +53,16 @@ class IndexAdministrator(object):
                     termix = self.vocabulary.add_term(fs,term)
                     self.data.add_posting(fs,md5ix,termix,count)
 
+    def index_semantic_features(self,name,xrec,recorders,features):
+        md5 = xrec['md5']
+        md5ix = self.xmd5index.add_xmd5(md5)
+        self.xmd5xref.add_xref(md5ix,name)
+        for r in recorders:
+            r.record(features)
+            for fs in r.results:
+                for (term,count) in r.results[fs].items():
+                    termix = self.vocabulary.add_term(fs,term)
+                    self.data.add_posting(fs,md5ix,termix,count)
 
     def save_features(self):
         UF.create_index_directories(self.indexpath)
