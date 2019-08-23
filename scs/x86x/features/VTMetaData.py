@@ -114,6 +114,35 @@ class VTMetaExifTool(object):
 
     def __init__(self,data):
         self.data = data
+        self.codesize = int(self.data.get('CodeSize','0'))
+        self.companyname = self.data.get('CompanyName','')
+        self.entrypoint = self.data.get('EntryPoint','')
+        self.filedescription = self.data.get('FileDescription','')
+        self.fileflagsmask = self.data.get('FileFlagsMask','')
+        self.fileOS = self.data.get('FileOS','')
+        self.filesubtype = self.data.get('FileSubtype','')
+        self.filetype = self.data.get('FileType','')
+        self.filetypeextension = self.data.get('FileTypeExtension','')
+        self.fileversion = self.data.get('FileVersion','')
+        self.fileversionnumber = self.data.get('FileVersionNumber','')
+        self.imageversion = self.data.get('ImageVersion','')
+        self.initializeddatasize = int(self.data.get('InitializedDataSize','0'))
+        self.internalname = self.data.get('InternalName','')
+        self.languagecode = self.data.get('LanguageCode','')
+        self.legalcopyright = self.data.get('LegalCopyright','')
+        self.linkerversion = self.data.get('LinkerVersion','')
+        self.mimetype = self.data.get('MIMEType','')
+        self.machinetype = self.data.get('MachineType','')
+        self.osversion = self.data.get('OSVersion','')
+        self.objectfiletype = self.data.get('ObjectFileType','')
+        self.originalfilename = self.data.get('OriginalFileName','')
+        self.petype = self.data.get('PEType','')
+        self.productname = self.data.get('ProductName','')
+        self.productversion = self.data.get('ProductVersion','')
+        self.productversionnumber = self.data.get('ProductVersionNumber','')
+        self.subsystem = self.data.get('Subsystem','')
+        self.timestamp = self.data.get('TimeStamp','')
+        self.uninitializeddatasize = int(self.data.get('UninitializedDataSize','0'))
 
 class VTMetaImportLibrary(object):
 
@@ -238,14 +267,22 @@ class VTMetaSigCheck(object):
 
     def __init__(self,data):
         self.data = data
-        self.countersigners = self.data['counter signers'] if 'counter signers' in self.data else ''
+        self.copyright = self.data.get('copyright','')
+        self.countersigners = self.data.get('counter signers','')
         self.countersignersdetails = [ VTMetaSigner(s) for s in self.data['counter signers details'] ] if 'counter signer details' in self.data else []
-        self.fileversion = self.data['file version'] if 'file version' in self.data else ''
-        self.publisher = self.data['publisher'] if 'publisher'  in self.data else ''
-        self.signers = self.data['signers'] if 'signers' in self.data else ''
+        self.description = self.data.get('description','')
+        self.fileversion = self.data.get('file version','')
+        self.internalname = self.data.get('internal name','')
+        self.linkdate = self.data.get('link date','')
+        self.originalname = self.data.get('original name','')
+        self.product = self.data.get('product','')
+        self.publisher = self.data.get('publisher','')
+        self.signers = self.data.get('signers','')
         self.signersdetails = [ VTMetaSigner(s) for s in self.data['signers details'] ] if 'signers details' in self.data else []
-        self.signingdate = self.data['signing date'] if 'signing date' in self.data else ''
-        self.verified = self.data['verified'] if 'verified' in self.data else ''
+        self.signingdate = self.data.get('signing date','')
+        self.verified = self.data.get('verified','')
+
+
 
 class VTMetaAdditionalInfo(object):
 
@@ -268,6 +305,10 @@ class VTMetaAdditionalInfo(object):
         self._initialize()
 
     def has_magic(self): return not self.magic is None
+
+    def has_exif(self): return not self.exiftool is None
+
+    def get_exif(self): return self.exiftool
 
     def has_entry_point(self): return not self.pe_entry_point is None
 
@@ -353,12 +394,12 @@ class VTMetaData(object):
     def __init__(self,metadata):
 
         self.results = metadata
-        self.first_seen = self.results['first_seen'] if 'first_seen' in self.results else None
-        self.last_seen = self.results['last_seen'] if 'last_seen' in self.results else None
-        self.scan_date = self.results['scan_date'] if 'scan_data' in self.results else None
+        self.first_seen = self.results.get('first_seen','')
+        self.last_seen = self.results.get('last_seen','')
+        self.scan_date = self.results.get('scan_date','')
         self.md5 = self.results['md5']
         self.sha256 = self.results['sha256']
-        self.size = self.results['size'] if 'size' in self.results else None
+        self.size = self.results.get('size','')
         self.submission_names = self.results['submission_names']
         self.tags = self.results['tags']
         self.times_submitted = self.results['times_submitted']
@@ -370,6 +411,149 @@ class VTMetaData(object):
         self._initialize()
 
     def has_additional_info(self): return not self.additional_info is None
+
+    def has_exif(self):
+        return self.has_additional_info() and self.additional_info.has_exif()
+
+    def get_exif(self):
+        if self.has_exif():
+            return self.additional_info.get_exif()
+
+    def get_code_size(self):
+        if self.has_exif():
+            return self.get_exif().codesize
+        return 0
+
+    def get_company_name(self):
+        if self.has_exif():
+            return self.get_exif().companyname
+        return ''
+
+    def get_exif_entry_point(self):
+        if self.has_exif():
+            return self.get_exif().entrypoint
+        return ''
+
+    def get_file_description(self):
+        if self.has_exif():
+            return self.get_exif().filedescription
+        return ''
+
+    def get_file_os(self):
+        if self.has_exif():
+            return self.get_exif().fileOS
+        return ''
+
+    def get_exif_file_type(self):
+        if self.has_exif():
+            return self.get_exif().filetype
+        return ''
+
+    def get_file_version(self):
+        if self.has_exif():
+            return self.get_exif().fileversion
+        return ''
+
+    def get_file_version_number(self):
+        if self.has_exif():
+            return self.get_exif().fileversionnumber
+        return ''
+
+    def get_image_version(self):
+        if self.has_exif():
+            return self.get_exif().imageversion
+        return ''
+
+    def get_initialized_data_size(self):
+        if self.has_exif():
+            return self.get_exif().initializeddatasize
+        return 0
+
+    def get_exif_internal_name(self):
+        if self.has_exif():
+            return self.get_exif().internalname
+        return ''
+
+    def get_language_code(self):
+        if self.has_exif():
+            return self.get_exif().languagecode
+        return ''
+
+    def get_legal_copyright(self):
+        if self.has_exif():
+            return self.get_exif().legalcopyright
+        return ''
+
+    def get_machine_type(self):
+        if self.has_exif():
+            return self.get_exif().machinetype
+        return ''
+
+    def get_os_version(self):
+        if self.has_exif():
+            return self.get_exif().osversion
+        return ''
+
+    def get_exif_original_filename(self):
+        if self.has_exif():
+            return self.get_exif().originalfilename
+        return ''
+
+    def get_pe_type(self):
+        if self.has_exif():
+            return self.get_exif().petype
+        return ''
+
+    def get_exif_product_name(self):
+        if self.has_exif():
+            return self.get_exif().productname
+        return ''
+
+    def get_exif_product_version(self):
+        if self.has_exif():
+            return self.get_exif().productversion
+        return ''
+
+    def get_product_version_number(self):
+        if self.has_exif():
+            return self.get_exif().productversionnumber
+        return ''
+
+    def get_subsystem(self):
+        if self.has_exif():
+            return self.get_exif().subsystem
+        return ''
+
+    def get_exif_timestamp(self):
+        if self.has_exif():
+            return self.get_exif().timestamp
+        return ''
+
+    def get_exif_timestamp_yyyy(self):
+        timestamp = self.get_exif_timestamp()
+        if timestamp == '':
+            return timestamp
+        else:
+            return timestamp[:4]
+
+    def get_exif_timestamp_yyyy_mm(self):
+        timestamp = self.get_exif_timestamp()
+        if timestamp == '':
+            return timestamp
+        else:
+            return timestamp[:7]
+
+    def get_exif_timestamp_yyyy_mm_dd(self):
+        timestamp = self.get_exif_timestamp()
+        if timestamp == '':
+            return timestamp
+        else:
+            return timestamp[:10]
+
+    def get_uninitialized_data_size(self):
+        if self.has_exif():
+            return self.get_exif().uninitializeddatasize
+        return 0
 
     def has_magic(self):
         return self.has_additional_info() and self.additional_info.has_magic()
@@ -495,12 +679,12 @@ class VTMetaData(object):
 
     def get_signers(self):
         if self.has_sigcheck():
-            return self.get_sigcheck().signers.split(';')
+            return self.get_sigcheck().signers.split('; ')
         return []
 
     def get_counter_signers(self):
         if self.has_sigcheck():
-            return self.get_sigcheck().countersigners.split(';')
+            return self.get_sigcheck().countersigners.split('; ')
         return []
 
     def get_signers_details(self):
@@ -513,9 +697,29 @@ class VTMetaData(object):
             return self.get_sigcheck().countersignersdetails
         return []
 
+    def get_copyright(self):
+        if self.has_sigcheck():
+            return self.get_sigcheck().copyright
+
+    def get_description(self):
+        if self.has_sigcheck():
+            return self.get_sigcheck().description
+
+    def get_original_name(self):
+        if self.has_sigcheck():
+            return self.get_sigcheck().originalname
+
+    def get_product(self):
+        if self.has_sigcheck():
+            return self.get_sigcheck().product
+
     def get_signing_date(self):
         if self.has_sigcheck():
             return self.get_sigcheck().signingdate
+
+    def get_verified(self):
+        if self.has_sigcheck():
+            return self.get_sigcheck().verified
 
     def has_behaviour(self):
         return self.has_additional_info() and self.additional_info.has_behaviour_v1()
