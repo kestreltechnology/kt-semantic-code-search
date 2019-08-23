@@ -32,6 +32,9 @@ class PropertyFormatter(object):
     def __init__(self,specs):
         self.specs = specs     # featureset -> report spec list
 
+    def add_spec(self,fs,fsformat=[ "default" ]):
+        self.specs[fs] = fsformat
+
     def get_featuresets(self): return self.specs.keys()
 
     def format_properties(self,doccount,properties):
@@ -68,10 +71,22 @@ class PropertyFormatter(object):
             if spec == 'multiplicity':
                 total = sum([fsproperties[t] for t in fsproperties ])
                 distinct = len(fsproperties)
-                coverage =  (float(total) / float(distinct)) / float(doccount)
+                if distinct > 0 and doccount > 0:
+                    coverage =  (float(total) / float(distinct)) / float(doccount)
+                else:
+                    coverage = 0.0
                 lines.append('Multiplicity (' + str(total) + '/' + str(distinct) + '): '
                                  + '{0:.2f}'.format(float(total)/float(distinct))
                                  + ' (coverage: ' + '{0:.3f}'.format(coverage) + ')')
+            elif spec == 'distribution':
+                distro = {}  #  appearance count -> function count
+                for t in fsproperties:
+                    fncount = fsproperties[t]
+                    distro.setdefault(fncount,0)
+                    distro[fncount] += 1
+                lines.append('Distribution of appearance counts')
+                for c in sorted(distro):
+                    lines.append(str(c).rjust(4) + ': ' + str(distro[c]).rjust(4))
             elif spec == 'default':
                 for t in sorted(fsproperties,key=lambda x:fsproperties[x]):
                     lines.append(str(fsproperties[t]).rjust(6) + '  ' +  t)

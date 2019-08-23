@@ -74,19 +74,20 @@ class FindSimilar(object):
                 self.weightings[index] = (idfvector[index],t,fs)
                 index += 1
 
-    def get_similarity_results_properties(self,propertyformats,cutoff=0.1):
+    def get_similarity_results_properties(self,propertyformats,mincutoff=0.0,maxcutoff=1.0):
         qresults = []
         featuresets = propertyformats.get_featuresets()
         self._initialize(featuresets)
         for i in range(self.searchindex.get_doc_count()):
-            if self.similarity[0,i] > cutoff:
+            if self.similarity[0,i] >= mincutoff and self.similarity[0,i] <= maxcutoff:
                 qresults.append((i,self.similarity[0,i]))
         results = {}        # fs -> docix - > termix -> count
         for i in range(len(qresults)):
             docix = self.docids[qresults[i][0]]
             for fs in featuresets:
-                results.setdefault(fs,{})
-                results[fs][docix] = self.postings[fs].get_doc_term_frequency(docix)
+                if fs in self.vocabulary and fs in self.postings:
+                    results.setdefault(fs,{})
+                    results[fs][docix] = self.postings[fs].get_doc_term_frequency(docix)
         properties = {}   # fs -> termix -> count
         for fs in results:
             properties[fs] = {}
@@ -102,14 +103,14 @@ class FindSimilar(object):
                 xproperties[fs][term] = properties[fs][termix]
         return xproperties
         
-    def get_similarity_results_structured(self,count=5000,cutoff=0.1):
+    def get_similarity_results_structured(self,mincutoff=0.0,maxcutoff=1.0):
         qresults = []
         for i in range(self.searchindex.get_doc_count()):
-            if self.similarity[0,i] > cutoff:
+            if self.similarity[0,i] >= mincutoff and self.similarity[0,i] <= maxcutoff:
                 qresults.append((i,self.similarity[0,i]))
         qresults = sorted(qresults,key=lambda x:x[1],reverse=True)
         results = []
-        for i in range(min(len(qresults),count)):
+        for i in range(len(qresults)):
             docix = self.docids[qresults[i][0]]
             document = self.searchindex.get_document(docix)
             results.append((qresults[i][1],document))
