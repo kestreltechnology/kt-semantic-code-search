@@ -98,12 +98,13 @@ virus_stemmings = {
     'Downloader': 'Downloader',
     'Downware.InstallCore': 'InstallCore',
     'DR/AutoIt': 'AutoIt',
+    'Dropped:Application.Bundler.Outbrowse': 'OutBrowse',
     'Dropper': 'Dropper',
     'Email-Worm': 'Email-worm',
     'EmailWorm': 'Email-worm',
     'Gen:Application.Bundler.Firseria': 'Firseria',
-    'Gen:Trojan': 'Gen:Trojan',
-    'Gen:Variant.Adware': 'Gen:Variant.Adware',
+    'Gen:Trojan': 'Trojan',
+    'Gen:Variant.Adware': 'Adware',
     'Gen:Variant.Application.Bundler': 'Bundler',
     'Gen:Variant.Application.Graftor': 'Graftor',
     'Gen:Variant.Application.Kazy': 'Kazy',
@@ -121,6 +122,8 @@ virus_stemmings = {
     'Gen:Variant.Zusy': 'Zusy',
     'Generic': 'Generic',
     'GrayWare': 'Grayware',
+    'HEUR/QVM19.1.Virus.Win32.Sality': 'Sality',
+    'HEUR/QVM08.0.Virus.Win32.Virut': 'Virut',
     'HT_BROWSEFOX': 'BrowseFox',
     'HW32.Packed': 'HW32.Packed',
     'HackTool': 'HackTool',
@@ -145,6 +148,7 @@ virus_stemmings = {
     'Mal_Allaple': 'WormAllaple',
     'Malware-Cryptor': 'Cryptor',
     'Malware/Win32.SAPE': 'SAPE',
+    'MemScan:Application.Bundler.Outbrowse': 'OutBrowse',
     'MultiPlug': 'MultiPlug',
     'Multiplug': 'MultiPlug',
     'MysticCompressor': 'MysticCompressor',
@@ -163,6 +167,9 @@ virus_stemmings = {
     'NetWorm.Win32.Allaple': 'WormAllaple',
     'Nsis.Adware': 'Adware',
     'Nsis.Trojan': 'Trojan',
+    'not-a-virus:HEUR:AdWare.Win32': 'Adware',
+    'not-a-virus:AdWare.NSIS': 'Adware;NSIS',
+    'not-a-virus:HEUR:AdWare.Win32.OutBrowse': 'OutBrowse',
     'Obfuscated': 'Obfuscated',
     'OScope.Malware-Cryptor.Win32.Allaple': 'WormAllaple',
     'OutBrowse': 'OutBrowse',
@@ -254,6 +261,7 @@ virus_stemmings = {
     'PUP.HackTool': 'HackTool',
     'PUP.Optional.Amonetize': 'Amonetize',
     'PUP.Optional.DomaIQ': 'DomaIQ',
+    'PUP.Optional.DownLoadAdmin': 'DownloadAdmin',
     'PUP.Optional.Downloader': 'Downloader',
     'PUP.Optional.Firseria': 'Firseria',
     'PUP.Optional.InstallCore': 'InstallCore',
@@ -309,13 +317,15 @@ virus_stemmings = {
     'SScope.Adware.Multiplug': 'Multiplug',
     'SScope.Adware.Softpulse': 'SoftPulse',
     'SScope.Backdoor': 'Backdoor',
-    'SScope.Downware.DownloadAdmin': 'DownloadAmin',
+    'SScope.Downware.DownloadAdmin': 'DownloadAdmin',
     'SScope.Injector': 'Injector',
     'SScope.Malware-Cryptor': 'Cryptor',
     'SScope.Trojan': 'Trojan',
+    'Signed-Adware.Outbrowse': 'OutBrowse',
     'Simda': 'Simda',
     'SoftPulse': 'SoftPulse',
     'Softonic': 'Softonic',
+    'SoftwareBundler:Win32/OutBrowse': 'OutBrowse',
     'Solimba': 'Solimba',
     'Suspicious.Cloud': 'Suspicious.Cloud',
     'TR/Agent': 'TR/Agent',
@@ -372,6 +382,7 @@ virus_stemmings = {
     'W32.Virut': 'Virut',
     'W32.Wapomi': 'Wapomi',
     'W32/A-': 'Eldorado',
+    'W32/ALLAPLE': 'WormAllaple',
     'W32/Adware': 'Adware',
     'W32/Agent': 'Agent',
     'W32/Allaple': 'WormAllaple',
@@ -385,6 +396,8 @@ virus_stemmings = {
     'W32/Detnat': 'Detnat',
     'W32/DomaIQ': 'DomaIQ',
     'W32/DownloadAdmin': 'DownloadAdmin',
+    'W32/DownldAdmin.A.gen!Eldorado': 'Eldorado',
+    'W32/DownloAdmin.B.gen!Eldorado': 'Eldorado',
     'W32/Download': 'Downloader',
     'W32/Elkern': 'Elkern',
     'W32/EmailWorm': 'Email-worm',
@@ -394,6 +407,7 @@ virus_stemmings = {
     'W32/GenTroj': 'Trojan',
     'W32/Graftor': 'Graftor',
     'W32/Hacktool': 'HackTool',
+    'W32/Heuristic-210!Eldorado': 'Eldorado',
     'W32/Inject': 'Injector',
     'W32/Jadtre': 'Jadtre',
     'W32/Kazy': 'Kazy',
@@ -404,17 +418,21 @@ virus_stemmings = {
     'W32/MultiPlug': 'MultiPlug',
     'W32/MyDoom': 'Mydoom',
     'W32/Mydoom': 'Mydoom',
+    'W32/Mywebsearch.K.gen!Eldorado': 'Eldorado',
     'W32/Nimnnul': 'Nimnul',
     'W32/Obfuscated': 'Obfuscated',
     'W32/OnlineGames': 'OnlineGames',
     'W32/Onlinegames': 'OnlineGames',
     'W32/OutBrowse': 'OutBrowse',
     'W32/Outbrowse': 'OutBrowse',
+    'W32/Patched.S.gen!Eldorado': 'Eldorado',
     'W32/Parite': 'Parite',
     'W32/RAHack': 'RAHack',
     'W32/Rahack': 'RAHack',
     'W32/Ramnit': 'Ramnit',
     'W32/Ransom': 'Ransom',
+    'W32/SomotoBetterInstaller.F.!Eldorado': 'Eldorado',
+    'W32/SuspPack.FW.gen!Eldorado': 'Eldorado',
     'W32/Sytro': 'Sytro',
     'W32/S-': 'Eldorado',
     'W32/Sality': 'Sality',
@@ -529,9 +547,11 @@ virus_stemmings = {
     'Win32:Sality': 'Sality',
     'Win32:SoftPulse': 'SoftPulse',
     'Win32:Socks': 'Socks',
+    'Win32:StubOfSality': 'Sality',
     'Win32:Trojan': 'Trojan',
     'Win32:Viking': 'Viking',
     'Win32:VirLock': 'Virlock',
+    'Win32.Virus.Virut': 'Virut',
     'Win32:Virut': 'Virut',
     'Win32:Zbot': 'Zbot',
     'Win-PUP/DomaIQ': 'DomaIQ',
@@ -568,6 +588,7 @@ virus_stemmings = {
     'Worm:Win32/Mydoom': 'Mydoom',
     'Worm:Win32/Sality': 'Sality',
     'Worm.Allaple': 'WormAllaple',
+    'Worm.AllApleT': 'WormAllaple',
     'Worm[Email]/Win32.Mydoom': 'Mydoom',
     'Worm[Net]/Win32.Allaple': 'WormAllaple',
     'Worm[P2P]/Win32.Sytro': 'Sytro',
@@ -729,6 +750,40 @@ class VTMetaDataRecorder(object):
             if self.includes('trid_stemmed'):
                 for t in [ stem_trid(t) for t in vtmeta.get_trid().split('\n') ]:
                     self.add_term('trid_stemmed',t,1)
+
+    # ------------------------------------------------------- features: exif ---
+
+    def get_exif(self,vtmeta):
+        if vtmeta.has_exif():
+            def add(fs,t):
+                if self.includes(fs):
+                    self.add_term(fs,t)
+            add('codesize',vtmeta.get_code_size())
+            add('company_name',vtmeta.get_company_name())
+            add('exif_entry_point',vtmeta.get_exif_entry_point())
+            add('file_description',vtmeta.get_file_description())
+            add('file_os',vtmeta.get_file_os())
+            add('file_type',vtmeta.get_exif_file_type())
+            add('file_version',vtmeta.get_file_version())
+            add('file_version_number',vtmeta.get_file_version_number())
+            add('image_version',vtmeta.get_image_version())
+            add('initialized_data_size',vtmeta.get_initialized_data_size())
+            add('internal_name',vtmeta.get_exif_internal_name())
+            add('language_code',vtmeta.get_language_code())
+            add('legal_copyright',vtmeta.get_legal_copyright())
+            add('machinetype',vtmeta.get_machine_type())
+            add('original_filename',vtmeta.get_exif_original_filename())
+            add('osversion',vtmeta.get_os_version())
+            add('petype',vtmeta.get_pe_type())
+            add('productname',vtmeta.get_exif_product_name())
+            add('product_version',vtmeta.get_exif_product_version())
+            add('product_version_number',vtmeta.get_product_version_number())
+            add('subsystem',vtmeta.get_subsystem())
+            add('timestamp',vtmeta.get_exif_timestamp())
+            add('timestamp_yyyy',vtmeta.get_exif_timestamp_yyyy())
+            add('timestamp_yyyy_mm',vtmeta.get_exif_timestamp_yyyy_mm())
+            add('timestamp_yyyy_mm_dd',vtmeta.get_exif_timestamp_yyyy_mm_dd())
+            add('uninitialized_data_size',vtmeta.get_uninitialized_data_size())
                                 
 
     # ------------------------------------------------------ features: scans ---
@@ -794,6 +849,10 @@ class VTMetaDataRecorder(object):
 
     def get_sigcheck_data(self,vtmeta):
         if vtmeta.has_sigcheck():
+            if self.includes('product'):
+                self.add_term('product',vtmeta.get_product())
+            if self.includes('original_name'):
+                self.add_term('original_name',vtmeta.get_original_name())
             if self.includes('publishers'):
                 self.add_term('publishers',vtmeta.get_publisher())
             if self.includes('signers'):
@@ -804,6 +863,8 @@ class VTMetaDataRecorder(object):
                     self.add_term('counter_signers',n)
             if self.includes('signing_date'):
                 self.add_term('signing_date',vtmeta.get_signing_date())
+            if self.includes('verified'):
+                self.add_term('verified',vtmeta.get_verified())
 
     # -------------------------------------------------- features: behaviour ---
 
@@ -849,6 +910,7 @@ class VTMetaDataRecorder(object):
         self.get_entry_point(vtmeta)
         self.get_submission_names(vtmeta)
         self.get_tags(vtmeta)
+        self.get_exif(vtmeta)
         self.get_scan_count(vtmeta)
         self.get_positives(vtmeta)
         self.get_detection_rate(vtmeta)
