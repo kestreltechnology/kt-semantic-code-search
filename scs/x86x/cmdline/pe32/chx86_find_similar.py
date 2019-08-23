@@ -29,6 +29,8 @@
 import argparse
 import json
 
+import scs.x86x.util.fileutil as UF
+
 from scs.x86x.retrieval.SearchIndex import SearchIndex
 from scs.x86x.similarity.Pattern import Pattern
 from scs.x86x.similarity.SearchTerms import SearchTerms
@@ -39,17 +41,22 @@ def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('indexpath',help='directory that holds the indexed features')
     parser.add_argument('pattern',help='json file with features patterns')
+    parser.add_argument('--iocproperties',nargs='*',default=[])
+    parser.add_argument('--mincutoff',type=float,default='0.01',
+                            help='minimum score to be included in the results')
+    parser.add_argument('--maxcutoff',type=float,default='1.0',
+                            help='maximum score to be included in the results')
     args = parser.parse_args()
     return args
 
-def find_similar(indexpath,pattern):
+def find_similar(indexpath,pattern,iocfeatures):
     searchindex = SearchIndex(indexpath)
     pattern = Pattern(pattern)
     searchterms = SearchTerms(pattern.searchterms)
     query = FindSimilar(searchindex,searchterms)
     query.search()
     weightings = query.weightings
-    similarityresults = query.get_similarity_results_structured()
+    similarityresults = query.get_similarity_results_structured(args.mincutoff,args.maxcutoff)
     
     for r in sorted(weightings):
         w = weightings[r]
@@ -66,20 +73,40 @@ def find_similar(indexpath,pattern):
         m['name'] = xexe
         results['exes'].append(m)
 
-    for m in sorted(results['exes'],key=lambda m:m['score'],reverse=True):
+    for m in sorted(results['exes'],key=lambda m:(m['score'],m['name'][0]),reverse=True):
         print(str(m['score']).ljust(25) + ': ' + ','.join([ str(x) for x in m['name']]))
 
+    md5digits = {}
+    for m in results['exes']:
+        leadingdigit = m['name'][0][5]
+        md5digits.setdefault(leadingdigit,0)
+        md5digits[leadingdigit] += 1
+
     propertyformats = PropertyFormatter(pattern.propertyformats)
-    properties = query.get_similarity_results_properties(propertyformats)
+    for fs in iocfeatures: propertyformats.add_spec(fs)
+    properties = query.get_similarity_results_properties(propertyformats,
+                                                             args.mincutoff,args.maxcutoff)
 
     print(propertyformats.format_properties(len(results['exes']),properties))
+
+    for d in sorted(md5digits):
+        print(str(md5digits[d]).rjust(5) + '  ' + str(d))
 
 
 if __name__ == '__main__':
 
     args = parse()
 
+    if len(args.iocproperties) > 0:
+        iocfeaturenames = UF.get_ioc_featurenames_file()
+        iocfeatures = []
+        for c in args.iocproperties:
+            if c in iocfeaturenames:
+                iocfeatures.extend([ 'ioc_' + n for n in iocfeaturenames[c]])
+    else:
+        iocfeatures = []
+
     with open(args.pattern,'r') as fp:
         pattern = json.load(fp)
 
-    find_similar(args.indexpath, pattern)
+    find_similar(args.indexpath, pattern, iocfeatures)
