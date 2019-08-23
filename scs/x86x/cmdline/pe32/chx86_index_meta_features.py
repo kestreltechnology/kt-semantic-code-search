@@ -63,27 +63,60 @@ def satisfies_spec(r,includes,excludes):
             return True
     return True
 
-featuresets = [ 'size', 'submission_names', 'tags', 'detection_rate', 'type',
-                    'magic', 'entry_point', 'trid_stemmed',
-                    'detections_stemmed', 'detectors', 'non_detectors',
-                    'section_names', 'named_section_md5s',
-                    'named_section_virtual_addresses',
-                    'named_section_raw_sizes', 'named_section_virtual_sizes',
-                    'resource_file_types', 'resource_types', 'resource_languages',
-                    'signers', 'counter_signers', 'publishers', 'signing_date',
-                    'runtime_dlls', 'mutexes_created', 'mutexes_opened',
-                    'imported_libraries', 'imported_functions',
-                    'files_copied_src', 'files_copied_dst',
-                    'files_deleted', 'files_downloaded',
-                    'files_moved_src', 'files_moved_dst',
-                    'files_opened', 'files_read',
-                    'files_replaced', 'files_written',
-                    'processes_created', 'processes_injected',
-                    'processes_shellcmds', 'processes_terminated',
-                    'network_dns_ip', 'network_dns_hostname',
-                    'network_http_url', 'network_http_method', 'network_http_user_agent',
-                    'network_tcp', 'network_udp',
-                    'registry_deleted', 'registry_set' ]
+behavior_featuresets = [
+    'runtime_dlls', 'mutexes_created', 'mutexes_opened',
+    'imported_libraries', 'imported_functions',
+    'files_copied_src', 'files_copied_dst',
+    'files_deleted', 'files_downloaded',
+    'files_moved_src', 'files_moved_dst',
+    'files_opened', 'files_read',
+    'files_replaced', 'files_written',
+    'processes_created', 'processes_injected',
+    'processes_shellcmds', 'processes_terminated',
+    'network_dns_ip', 'network_dns_hostname',
+    'network_http_url', 'network_http_method', 'network_http_user_agent',
+    'network_tcp', 'network_udp',
+    'registry_deleted', 'registry_set'
+    ]
+
+sigcheck_featuresets = [
+    'signers', 'counter_signers', 'publishers', 'signing_date',
+    'verified', 'original_name',  'product' ]
+
+resource_featuresets = [
+    'resource_file_types', 'resource_types', 'resource_languages' ]
+
+section_featuresets = [
+    'section_names', 'named_section_md5s',
+    'named_section_virtual_addresses',
+    'named_section_raw_sizes', 'named_section_virtual_sizes' ]
+    
+detection_featuresets = [
+    'detections_stemmed', 'detectors', 'non_detectors', 'detection_rate' ]
+
+exif_featuresets = [
+    'codesize', 'company_name', 'exif_entry_point', 'file_description',
+    'file_os', 'file_type', 'file_version',
+    'file_version_number', 'image_version', 'initialized_data_size',
+    'internal_name', 'language_code', 'legal_copyright',
+    'machinetype', 'osversion',
+    'original_filename', 'petype', 'productname', 'product_version',
+    'product_version_number', 'subsystem',
+    'timestamp','timestamp_yyyy', 'timestamp_yyyy_mm', 'timestamp_yyyy_mm_dd',
+    'uninitialized_data_size' ]
+    
+
+basic_featuresets = [
+    'size', 'submission_names', 'tags', 'type',
+    'magic', 'entry_point', 'trid_stemmed' ]
+
+featuresets = (basic_featuresets
+                   + exif_featuresets
+                   + detection_featuresets
+                   + section_featuresets
+                   + resource_featuresets
+                   + sigcheck_featuresets
+                   + behavior_featuresets )
 
 
 if __name__ == '__main__':
