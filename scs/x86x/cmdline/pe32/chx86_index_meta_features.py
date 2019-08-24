@@ -63,7 +63,7 @@ def satisfies_spec(r,includes,excludes):
             return True
     return True
 
-<<<<<<< HEAD
+
 behavior_featuresets = [
     'runtime_dlls', 'mutexes_created', 'mutexes_opened',
     'imported_libraries', 'imported_functions',
