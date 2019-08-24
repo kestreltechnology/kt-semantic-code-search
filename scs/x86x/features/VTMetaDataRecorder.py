@@ -901,7 +901,9 @@ class VTMetaDataRecorder(object):
             add('processes_shellcmds',vtmeta.get_processes_shellcmds)
             add('processes_terminated',vtmeta.get_processes_terminated)
             add('registry_deleted',vtmeta.get_registry_deleted)
-            add('registry_set',vtmeta.get_registry_set)
+            add('registry_type',vtmeta.get_registry_type)
+            add('registry_val',vtmeta.get_registry_val)
+            add('registry_key',vtmeta.get_registry_key)
 
     # --------------------------------------------------------------- record ---
 

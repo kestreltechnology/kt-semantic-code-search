@@ -182,7 +182,9 @@ class PropertyFormatter(object):
                         ampm = signdate[1]
                         date = [ int(t) for t in signdate[2].split('/') ]
                         time = [ int(t) for t in signdate[0].split(':') ]
-                        hr =  time[0] if ampm == 'AM' else time[0] + 12
+                        if time[0] == 12 and ampm == 'AM': hr = time[0] - 12
+                        elif time[0] == 12 or ampm == 'AM': hr = time[0]
+                        else: hr = time[0] + 12
                         minutes = time[1]
                         month = date[0]
                         day = date[1]
