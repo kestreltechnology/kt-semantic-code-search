@@ -72,11 +72,13 @@ class PropertyFormatter(object):
                 total = sum([fsproperties[t] for t in fsproperties ])
                 distinct = len(fsproperties)
                 if distinct > 0 and doccount > 0:
+                    multiplicity = float(total)/float(distinct)
                     coverage =  (float(total) / float(distinct)) / float(doccount)
                 else:
+                    multiplicity = 0.0
                     coverage = 0.0
                 lines.append('Multiplicity (' + str(total) + '/' + str(distinct) + '): '
-                                 + '{0:.2f}'.format(float(total)/float(distinct))
+                                 + '{0:.2f}'.format(multiplicity)
                                  + ' (coverage: ' + '{0:.3f}'.format(coverage) + ')')
             elif spec == 'distribution':
                 distro = {}  #  appearance count -> function count
