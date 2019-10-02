@@ -75,25 +75,14 @@ class FindSimilar(object):
                 index += 1
 
     def get_similarity_results_properties(self,propertyformats,mincutoff=0.0,maxcutoff=1.0):
-        qresults = []
         featuresets = propertyformats.get_featuresets()
-        self._initialize(featuresets)
-        for i in range(self.searchindex.get_doc_count()):
-            if self.similarity[0,i] >= mincutoff and self.similarity[0,i] <= maxcutoff:
-                qresults.append((i,self.similarity[0,i]))
-        results = {}        # fs -> docix - > termix -> count
-        for i in range(len(qresults)):
-            docix = self.docids[qresults[i][0]]
-            for fs in featuresets:
-                if fs in self.vocabulary and fs in self.postings:
-                    results.setdefault(fs,{})
-                    results[fs][docix] = self.postings[fs].get_doc_term_frequency(docix)
+        results = self._get_similarity_results(propertyformats,mincutoff,maxcutoff)
         properties = {}   # fs -> termix -> count
         for fs in results:
             properties[fs] = {}
             for docix in results[fs]:
                 for termix in results[fs][docix]:
-                    properties[fs].setdefault(termix,0)
+                    properties[fs].setdefault(termix, 0)
                     properties[fs][termix] += results[fs][docix][termix]
         xproperties = {}
         for fs in properties:
@@ -102,7 +91,26 @@ class FindSimilar(object):
                 term = self.vocabulary[fs].get_term(int(termix))
                 xproperties[fs][term] = properties[fs][termix]
         return xproperties
-        
+    
+    def get_similarity_results_representatives(self,propertyformats,mincutoff=0.0,maxcutoff=1.0):
+        featuresets = propertyformats.get_featuresets()
+        results = self._get_similarity_results(propertyformats,mincutoff,maxcutoff)
+        properties = {}   # fs -> termix -> count
+        for fs in results:
+            properties[fs] = {}
+            for docix in results[fs]:
+                for termix in results[fs][docix]:
+                    document = self.searchindex.get_document(docix)[0]
+                    properties[fs].setdefault(termix, document)
+        xproperties = {}
+        for fs in properties:
+            xproperties[fs] = {}
+            for termix in properties[fs]:
+                term = self.vocabulary[fs].get_term(int(termix))
+                xproperties[fs][term] = properties[fs][termix]
+        return xproperties 
+
+
     def get_similarity_results_structured(self,mincutoff=0.0,maxcutoff=1.0):
         qresults = []
         for i in range(self.searchindex.get_doc_count()):
@@ -123,4 +131,20 @@ class FindSimilar(object):
                 self.vocabulary[fs] = IndexedVocabulary(fsvoc)
             fspostings = self.searchindex.get_all_featureset_postings(fs)
             self.postings[fs] = IndexedPostings(fspostings)
+
+    def _get_similarity_results(self,propertyformats,mincutoff=0.0,maxcutoff=1.0):
+        qresults = []
+        featuresets = propertyformats.get_featuresets()
+        self._initialize(featuresets)
+        for i in range(self.searchindex.get_doc_count()):
+            if self.similarity[0,i] >= mincutoff and self.similarity[0,i] <= maxcutoff:
+                qresults.append((i,self.similarity[0,i]))
+        results = {}        # fs -> docix - > termix -> count
+        for i in range(len(qresults)):
+            docix = self.docids[qresults[i][0]]
+            for fs in featuresets:
+                if fs in self.vocabulary and fs in self.postings:
+                    results.setdefault(fs,{})
+                    results[fs][docix] = self.postings[fs].get_doc_term_frequency(docix)
+        return results
 

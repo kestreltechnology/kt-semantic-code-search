@@ -41,20 +41,31 @@ def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('indexpath',help='directory that holds the indexed features')
     parser.add_argument('pattern',help='json file with features patterns')
+    parser.add_argument('listing',help='list of md5s')
+    parser.add_argument('save',help='location to save properties to')
+    parser.add_argument('searchterm',help='name of property to get representatives of')
     parser.add_argument('--iocproperties',nargs='*',default=[])
     parser.add_argument('--mincutoff',type=float,default='0.01',
                             help='minimum score to be included in the results')
     parser.add_argument('--maxcutoff',type=float,default='1.0',
                             help='maximum score to be included in the results')
-    parser.add_argument('--save',default=None,help='save properties to this file')
-    parser.add_argument('--reps',action='store_true',
-                            help='list representative executable with each property')
     args = parser.parse_args()
     return args
 
-def find_similar(indexpath,pattern,iocfeatures):
+def structure_properties(propdict, results, pattern, searchterm):
+    propdict['rep'] = min([ x['name'][0] for x in results['exes'] ])
+    md5s = pattern.searchterms[searchterm]
+    propdict['text-md5s'] = next(iter(pattern.searchterms['named_section_md5s']))[6:] if len(md5s) == 1 else len(md5s)
+    propdict['count'] = len(results['exes'])
+
+    propdict['imported_functions'] = propdict['imported_functions'][0]
+    return (propdict)
+
+def find_similar(indexpath,pattern,iocfeatures,savefile,key,searchterm):
     searchindex = SearchIndex(indexpath)
     pattern = Pattern(pattern)
+    pattern.searchterms['named_section_md5s'] = { key : 1 }
+
     searchterms = SearchTerms(pattern.searchterms)
     query = FindSimilar(searchindex,searchterms)
     query.search()
@@ -69,38 +80,19 @@ def find_similar(indexpath,pattern,iocfeatures):
     results['exes'] = []
     results['weights'] = []
 
-    print('\n\nMost similar executables (' + str(len(similarityresults)) + '):')
     for (r,xexe) in similarityresults:
         m = {}
         m['score'] = r
         m['name'] = xexe
         results['exes'].append(m)
 
-    for m in sorted(results['exes'],key=lambda m:(m['score'],m['name'][0]),reverse=True):
-        print(str(m['score']).ljust(25) + ': ' + ','.join([ str(x) for x in m['name']]))
-
-    md5digits = {}
-    for m in results['exes']:
-        leadingdigit = m['name'][0][5]
-        md5digits.setdefault(leadingdigit,0)
-        md5digits[leadingdigit] += 1
-
     propertyformats = PropertyFormatter(pattern.propertyformats)
     for fs in iocfeatures: propertyformats.add_spec(fs)
     properties = query.get_similarity_results_properties(propertyformats,
                                                              args.mincutoff,args.maxcutoff)
-    reps = query.get_similarity_results_representatives(propertyformats, args.mincutoff,
-                                                            args.maxcutoff) if args.reps else None
-
-    print(propertyformats.format_properties(len(results['exes']), properties,reps=reps))
-    if args.save is not None:
-        propdict = propertyformats.format_properties_as_dict(len(results['exes']),properties,reps=reps)
-        with open(args.save, 'w') as fp:
-            json.dump(propdict, fp, indent=3)
-
-    for d in sorted(md5digits):
-        print(str(md5digits[d]).rjust(5) + '  ' + str(d))
-
+    propdict = propertyformats.format_properties_as_dict(len(results['exes']),properties)
+    propdict = structure_properties(propdict, results, pattern, searchterm)
+    return propdict
 
 if __name__ == '__main__':
 
@@ -118,4 +110,19 @@ if __name__ == '__main__':
     with open(args.pattern,'r') as fp:
         pattern = json.load(fp)
 
-    find_similar(args.indexpath, pattern, iocfeatures)
+    with open(args.listing,'r') as md5file:
+        md5list = json.load(md5file)[args.searchterm]
+
+    clusters = {}
+    for key in md5list:
+        listing = find_similar(args.indexpath, pattern, iocfeatures, args.save, key, args.searchterm)
+
+        namesize = 3
+        name = 'K' + listing['text-md5s'][:namesize]
+        while name in clusters:
+            namesize += 1
+            name = 'K' + listing['text-md5s'][:namesize]
+        clusters[name] = listing
+
+    with open(args.save,'w') as dumpfile:
+        json.dump(clusters, dumpfile, indent=3)

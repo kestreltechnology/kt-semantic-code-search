@@ -37,16 +37,39 @@ class PropertyFormatter(object):
 
     def get_featuresets(self): return self.specs.keys()
 
-    def format_properties(self,doccount,properties):
+    def filter_featureset(self,fsspecs,fsproperties):
+        filtertext = fsspecs[fsspecs.index("startswith") + 1]
+        keys = list(fsproperties.keys())
+        for t in keys:
+            if not str(t).startswith(filtertext):
+                del fsproperties[t]
+        return fsproperties
+
+    def format_properties(self,doccount,properties,reps=None):
         lines = []
+
         for fs in properties:
-            lines.append('\n' + fs)
+            lines.append(['\n' + fs])
             fsproperties = properties[fs]
+            fsreps = reps[fs] if reps is not None else None
             fsspecs = self.specs[fs]
-            lines.append(self.format_featureset(doccount,fs,fsspecs,fsproperties))
+            lines.append(self.format_featureset(doccount,fs,fsspecs,fsproperties,fsreps))
+
+        lines = [ '\n'.join(line) for line in lines ]
         return '\n'.join(lines)
 
-    def format_featureset(self,doccount,fs,fsspecs,fsproperties):
+    def format_properties_as_dict(self, doccount, properties,reps=None):
+        lines = {}
+
+        for fs in properties:
+            fsproperties = properties[fs]            
+            fsreps = reps[fs] if reps is not None else None
+            fsspecs = self.specs[fs]
+
+            lines[fs] = self.format_featureset_as_dict(doccount,fs,fsspecs,fsproperties,fsreps)
+        return lines
+
+    def format_featureset(self,doccount,fs,fsspecs,fsproperties,fsreps=None):
         if fs == 'detection_rate':
             return self.format_detection_rate(fsspecs,fsproperties)
         if fs == 'detections_stemmed':
@@ -54,18 +77,31 @@ class PropertyFormatter(object):
         if fs == 'detectors' or fs == 'non_detectors':
             return self.format_detectors(doccount,fsspecs,fsproperties)
         if fs == 'size' or fs == 'entry_point':
-            return self.format_multiplicity(fsspecs,fsproperties)
+            return self.format_multiplicity(fsspecs,fsproperties,fsreps)
         if fs == 'signing_date':
             return self.format_signing_date(fsspecs,fsproperties)
         if fs == 'imported_functions':
-            return self.format_imported_functions(doccount,fsspecs,fsproperties)
+            return self.format_imported_functions(doccount,fsspecs,fsproperties,fsreps)
         else:
             lines = []
+            if "startswith" in fsspecs:
+                fsproperties = filter_featureset(fsspecs, fsproperties)
             for t in sorted(fsproperties,key=lambda x:(fsproperties[x],x)):
-                lines.append(str(fsproperties[t]).rjust(6) + '  ' +  t)
-            return '\n'.join(lines)
+                if fsreps is None:
+                    lines.append(str(fsproperties[t]).rjust(6) + '  ' + t)
+                else:
+                    lines.append((str(fsproperties[t]) + ' ( ' + str(fsreps[t]) + ' ) ').rjust(6) + '  ' +  t)
+            return lines
 
-    def format_imported_functions(self,doccount,fsspecs,fsproperties):
+    def format_featureset_as_dict(self, doccount, fs, fsspecs, fsproperties,fsreps=None):
+        if fs == 'imported_functions':
+            return self.format_imported_functions_as_list(doccount, fsspecs, fsproperties)
+        else:
+            if "startswith" in fsspecs:
+                fsproperties = filter_featureset(fsspecs, fsproperties)
+            return fsproperties
+
+    def format_imported_functions(self,doccount,fsspecs,fsproperties,fsreps=None):
         lines = []
         for spec in fsspecs:
             if spec == 'multiplicity':
@@ -89,8 +125,20 @@ class PropertyFormatter(object):
                     lines.append(str(c).rjust(4) + ': ' + str(distro[c]).rjust(4))
             elif spec == 'default':
                 for t in sorted(fsproperties,key=lambda x:fsproperties[x]):
-                    lines.append(str(fsproperties[t]).rjust(6) + '  ' +  t)
-        return '\n'.join(lines)
+                    if fsreps is None:
+                        lines.append(str(fsproperties[t]).rjust(6) + '  ' + t)
+                    else:
+                        lines.append((str(fsproperties[t]) + ' ( ' + str(fsreps[t]) + ' ) ').rjust(6) + '  ' +  t)
+        return lines
+
+    def format_imported_functions_as_list(self, doccount, fsspecs, fsproperties):
+        lines = []
+        for spec in fsspecs:
+            if spec == 'multiplicity':
+                total = sum([fsproperties[t] for t in fsproperties ])
+                distinct = len(fsproperties)
+                lines.append( str(total) + ' / ' + str(distinct) )
+        return lines
 
     def format_detection_rate(self,fsspecs,fsproperties):
         lines = []
@@ -113,8 +161,8 @@ class PropertyFormatter(object):
                     lines.append(str(i).rjust(4) + '  ' + ('=' * int(80 * float(h[i]/maxh))))
             elif spec == 'default':
                 for t in sorted(fsproperties,key=lambda x:fsproperties[x]):
-                    lines.append(str(fsproperties[t]).rjust(6) + '  ' +  t)
-        return '\n'.join(lines)
+                    lines.append(str(fsproperties[t]).rjust(6) + '  ' + t)
+        return lines
 
     def format_detections(self,fsspecs,fsproperties):
         lines = []
@@ -126,7 +174,7 @@ class PropertyFormatter(object):
             elif spec == 'default':
                 for t in sorted(fsproperties,key=lambda x:fsproperties[x]):
                     lines.append(str(fsproperties[t]).rjust(6) + '  ' +  t)
-        return '\n'.join(lines)
+        return lines
 
     def format_detectors(self,doccount,fsspecs,fsproperties):
         lines = []
@@ -154,9 +202,9 @@ class PropertyFormatter(object):
             elif spec == 'default':
                 for t in sorted(fsproperties,key=lambda x:fsproperties[x]):
                     lines.append(str(fsproperties[t]).rjust(6) + '  ' +  t)
-        return '\n'.join(lines)
+        return lines
 
-    def format_multiplicity(self,fsspecs,fsproperties):
+    def format_multiplicity(self,fsspecs,fsproperties,fsreps=None):
         lines = []
         for spec in fsspecs:
             if spec == 'multiplicity':
@@ -169,8 +217,12 @@ class PropertyFormatter(object):
                                  + '; [ ' + str(minval) + ' - ' + str(maxval) + ']')
             elif spec == 'default':
                 for t in sorted(fsproperties,key=lambda x:fsproperties[x]):
-                    lines.append(str(fsproperties[t]).rjust(6) + '  ' +  t)
-        return '\n'.join(lines)
+                    if fsreps is None:
+                        lines.append(str(fsproperties[t]).rjust(6) + '  ' + t)
+                    else:
+                        lines.append((str(fsproperties[t]) + ' ( ' + str(fsreps[t]) + ' ) ').rjust(6) + '  ' +  t)
+
+        return lines
 
     def format_signing_date(self,fsspecs,fsproperties):
         lines = []
@@ -196,7 +248,7 @@ class PropertyFormatter(object):
             elif spec == 'default':
                 for t in sorted(fsproperties,key=lambda x:fsproperties[x]):
                     lines.append(str(fsproperties[t]).rjust(6) + '  ' +  t)
-        return '\n'.join(sorted(lines))
+        return sorted(lines)
             
 
             
