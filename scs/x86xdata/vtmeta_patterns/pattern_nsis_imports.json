@@ -1,0 +1,12 @@
+{
+    "search-terms": {
+        "named_section_md5s" : {
+            ".text:0bc2ffd32265a08d72b795b18265828d": 1
+        }
+    },
+    "property-formats": {
+        "entry_point": [ "default" ],
+        "codesize" : [ "default" ],
+        "imported_functions" : [ "default", "multiplicity" ]
+    }
+}
