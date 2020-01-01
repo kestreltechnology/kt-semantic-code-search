@@ -9,6 +9,7 @@
 	"non_detectors": [ "group" ],
 	"imported_libraries": [ "default"],
 	"imported_functions": [ "multiplicity", "default" ],
-	"detections_stemmed": [ "max:10" ]
+	"detections_stemmed": [ "max:10" ],
+	"detection_rate": [ "range", "histogram" ]
     }
 }

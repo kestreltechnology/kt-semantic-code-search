@@ -1,0 +1,30 @@
+{
+    "search-terms": {
+	"timestamp": {
+	    "2009:12:04 14:35:59+01:00": 1
+	},
+	"network_dns_ip": {
+	    "148.81.111.121": 1
+	},
+	"network_tcp": {
+	    "148.81.111.121:80": 1,
+	    "148.81.111.121:65520":  1
+	}
+    },
+    "property-formats": {
+	"imported_libraries": [ "default" ],
+	"detections_stemmed": [ "max:15" ],
+	"size": [ "range", "multiplicity" ],
+	"original_filename": [ "default" ],
+	"company_name": [ "default" ],
+	"runtime_dlls": [ "default" ],
+	"network_dns_ip": [ "default" ],
+	"network_dns_hostname": [ "default" ],
+	"network_tcp": [ "default" ],
+	"timestamp": [ "default" ],
+	"codesize": [ "default" ],
+	"section_names": [ "default" ],
+	"infox": [ "default" ],
+	"detection_rate": [ "range", "histogram" ]	
+    }
+}
