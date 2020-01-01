@@ -262,3 +262,9 @@ def save_vocabulary(d,ddict):
         with open(filename,'w') as fp:
             json.dump(ddict[fs],fp,sort_keys=True,indent=3)
 
+def save_similar(results, filename):
+    results_dict = {}
+    for m in sorted(results['exes'],key=lambda m:(m['score'],m['name'][0]),reverse=True):
+        results_dict[ ','.join([ str(x) for x in m['name']]) ] = m['score']
+    with open(filename,'w') as fp:
+        json.dump(results_dict, fp, sort_keys=True, indent=3)
