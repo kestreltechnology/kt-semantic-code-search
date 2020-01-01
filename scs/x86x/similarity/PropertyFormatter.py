@@ -116,6 +116,12 @@ class PropertyFormatter(object):
             elif spec == 'default':
                 for t in sorted(fsproperties,key=lambda x:fsproperties[x]):
                     lines.append(str(fsproperties[t]).rjust(6) + '  ' +  t)
+                h = {}
+                for i in range(0,(maxdet+10),10): h[i] = 0
+                for t in [ int(t) for t in fsproperties ]:
+                    h[int(t/10) * 10] += fsproperties[str(t)]
+                for i in sorted(h):
+                    lines.append(str(i) + ' ' + str(h[i]))
         return '\n'.join(lines)
 
     def format_detections(self,fsspecs,fsproperties):

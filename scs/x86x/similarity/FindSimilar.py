@@ -95,7 +95,7 @@ class FindSimilar(object):
                 for termix in results[fs][docix]:
                     properties[fs].setdefault(termix,0)
                     properties[fs][termix] += results[fs][docix][termix]
-        xproperties = {}
+        xproperties = {}   # fs ->  term -> count
         for fs in properties:
             xproperties[fs] = {}
             for termix in properties[fs]:
