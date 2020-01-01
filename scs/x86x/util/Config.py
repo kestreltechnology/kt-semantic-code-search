@@ -35,6 +35,7 @@ class Config(object):
     def __init__(self):
         self.utildir = os.path.dirname(os.path.abspath(__file__))
         self.x86xdir = os.path.dirname(self.utildir)
+        self.featuresdir = os.path.join(self.x86xdir,'features')
         self.vtmetadir = None
 
         if os.path.isfile(os.path.join(self.utildir,'ConfigLocal.py')):

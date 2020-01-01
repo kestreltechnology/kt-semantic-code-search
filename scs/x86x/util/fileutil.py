@@ -40,14 +40,14 @@ class KTError(Exception):
         lines.append('*' * 80)
         return '\n'.join(lines)
 
-class KTCHBFileNotFoundError(KTError):
+class KTFileNotFoundError(KTError):
 
     def __init__(self,filename):
         KTError.__init__(self,"File " + filename + " not found")
         self.filename = filename
 
 
-class KTCHBXmlParseError(KTError):
+class KTXmlParseError(KTError):
 
     def __init__(self,filename,errorcode,position):
         KTError.__init__(self,'Xml parse error')
@@ -58,6 +58,27 @@ class KTCHBXmlParseError(KTError):
     def __str__(self):
         return ('XML parse error in ' + filename + ' (errorcode: '
                     + str(self.errorcode) + ') at position ' + str(self.position))
+
+class KTJsonParseError(KTError):
+
+    def __init__(self,filename,e):
+        KTError.__init__(self,'Json Parse Error')
+        self.filename = filename
+        self.valueerror = e
+
+    def __str__(self):
+        return 'JSON parse error in file: ' + self.filename + ': ' + str(self.valueerror)
+
+
+def get_ioc_featurenames_file():
+    filename = os.path.join(Config().featuresdir,'ioc_feature_names.json')
+    if not os.path.isfile(filename):
+        raise KTFileNotFoundError(filename)
+    try:
+        with open(filename,'r') as fp:
+            return json.load(fp)
+    except ValueError as error:
+        raise KTJsonParseError(filename,error)
 
 def get_project_dictionary(path,filename):
     filename = os.path.join(path,filename)
@@ -71,6 +92,9 @@ def get_executable_dir(path,xfile):
     xdir = os.path.join(path,xfile + '.ch')
     return os.path.join(xdir,'x')
 
+def get_statistics_dir(path,xfile):
+    return os.path.join(path,xfile + '.chs')
+
 def get_pe_header_filename(path,xrec):
     try:
         path = os.path.join(path,xrec['path'])
@@ -78,6 +102,18 @@ def get_pe_header_filename(path,xrec):
         xxfile = xfile.replace('.','_')
         fdir = get_executable_dir(path,xfile)
         return os.path.join(fdir,xxfile + '_pe_header.xml')
+    except Exception as e:
+        print(str(e))
+        print(str(xrec))
+        raise
+
+def get_features_filename(path,xrec):
+    try:
+        path = os.path.join(path,xrec['path'])
+        xfile = xrec['file']
+        xxfile = xfile.replace('.','_')
+        fdir = get_statistics_dir(path,xfile)
+        return os.path.join(fdir,xxfile + '_features.json')
     except Exception as e:
         print(str(e))
         print(str(xrec))
@@ -122,6 +158,14 @@ def get_pe_xnode(path,xrec):
         return peheader
     else:
         raise KTCHBFileNotFoundError('File not found: ' + filename)
+
+def get_semantic_features(path,xrec):
+    filename = get_features_filename(path,xrec)
+    if os.path.isfile(filename):
+        with open(filename,'r') as fp:
+            return json.load(fp)
+    else:
+        return {}
 
 def get_vtmetadata_dict(key,xrec):
     filename = get_metadata_filename(key,xrec)
@@ -182,10 +226,9 @@ def load_postings_files(d):
         files = os.listdir(fdir)
         for f in files:
             if f.endswith('_documents.json'): continue
-            fs = f[33:-5]
-            # print(fs)
+            featuresetname = f.replace('.json','')
             with open(os.path.join(fdir,f)) as fp:
-                ddict[fs] = json.load(fp)
+                ddict[featuresetname] = json.load(fp)
     return ddict
 
 def save_postings_files(d,ddict):
