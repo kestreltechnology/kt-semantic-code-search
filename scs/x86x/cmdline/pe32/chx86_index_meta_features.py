@@ -38,31 +38,10 @@ from scs.x86x.index.IndexAdministrator import IndexAdministrator
 
 def parse():
     parser = argparse.ArgumentParser()
+    parser.add_argument('featurepath',help='directory that holds the meta data')
     parser.add_argument('indexpath',help='directory to save the indexed features')
-    parser.add_argument('--exclude_clusters','-x',nargs='*',default=[],
-                            help='exclude executables from these clusters')
-    parser.add_argument('--include_clusters','-i',nargs='*',default=[],
-                            help='only include executables from these clusters'),    
     args = parser.parse_args()
     return args
-
-
-def satisfies_spec(r,includes,excludes):
-    if len(includes) > 0:
-        for i in includes:
-            if (not 'clusters' in r) or all([ not c.startswith(i) for c in r['clusters'] ]):
-                return False
-        else:
-            return True
-    if len(excludes) > 0:
-        if not 'clusters' in r: return True
-        for x in excludes:
-            if any([ c.startswith(x) for c in r['clusters'] ]):
-                return False
-        else:
-            return True
-    return True
-
 
 behavior_featuresets = [
     'runtime_dlls', 'mutexes_created', 'mutexes_opened',
@@ -128,9 +107,9 @@ if __name__ == '__main__':
     indexadmin = IndexAdministrator(args.indexpath)
     recorder = VTMetaDataRecorder('metadata',featuresets)
     
-    for root,dirs, files in os.walk(Config().vtmetadir):
+    for root,dirs, files in os.walk(args.featurepath):
         for name in files:
-            if name.endswith('vtmeta') and name.startswith('V'):
+            if name.endswith('vtmeta'):
                 recorder.reset()
                 filename = os.path.join(root,name)
                 print(filename)
