@@ -162,7 +162,6 @@ class PropertyFormatter(object):
                 for i in range(0,(maxdet+10),10):
                     lines.append(str(i).rjust(4) + '  ' + ('=' * int(80 * float(h[i]/maxh))))
             elif spec == 'default':
-                for t in sorted(fsproperties,key=lambda x:fsproperties[x]):
                 h = {}
                 for i in range(0,(maxdet+10),10): h[i] = 0
                 for t in [ int(t) for t in fsproperties ]:
