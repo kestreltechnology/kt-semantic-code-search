@@ -1,12 +1,16 @@
 # kt-semantic-code-search
 Kestrel Technology tool that implements machine learning techniques to
-perform semantic code search on java byte code
+perform semantic code search on java byte code and similarity search
+for x86 (malware) executables.
 
 ### system requirements
 
 - requires python libraries: numpy, scipy, scikit-learn
 
 ### quick start
+
+To perform semantic code search on java byte code (instructions for
+similarity search for x86 executables can be found [here](scs/x86x/README.md)):
 
 - set PYTHONPATH  (adjust for local path to kt-semantic-code-search):
   ```
